@@ -35,10 +35,22 @@ export function StaffSidebarLayout({ children }: StaffSidebarLayoutProps) {
 
   const navItems = [
     {
-      title: t("desk_title"),
+      title: "Analytics",
       href: "/staff/dashboard",
       icon: <Inbox className="w-4 h-4 shrink-0" />,
-      active: pathname.startsWith("/staff/dashboard"),
+      active: pathname === "/staff/dashboard",
+    },
+    {
+      title: "Staff Print Desk",
+      href: "/staff/dashboard/print-desk",
+      icon: <Printer className="w-4 h-4 shrink-0" />,
+      active: pathname.startsWith("/staff/dashboard/print-desk"),
+    },
+    {
+      title: "Transactions",
+      href: "/staff/dashboard/transactions",
+      icon: <Inbox className="w-4 h-4 shrink-0" />,
+      active: pathname.startsWith("/staff/dashboard/transactions"),
     },
     {
       title: t("upload_nav"),
@@ -60,7 +72,7 @@ export function StaffSidebarLayout({ children }: StaffSidebarLayoutProps) {
 
       {/* shadcn Desktop & Mobile Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 transition-all duration-200 md:static ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 transition-all duration-200 md:sticky md:top-0 md:bottom-auto md:h-dvh md:self-start ${
           collapsed ? "w-16" : "w-64"
         } ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
@@ -146,7 +158,9 @@ export function StaffSidebarLayout({ children }: StaffSidebarLayoutProps) {
             <span className="font-semibold text-zinc-900 dark:text-zinc-100">libreprint</span>
             <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
             <span>Staff Portal</span>
-            {pathname.includes("/dashboard/") && (
+            {pathname === "/staff/dashboard/print-desk" && <><ChevronRight className="w-3.5 h-3.5 text-zinc-400" /><span>Staff Print Desk</span></>}
+            {pathname === "/staff/dashboard/transactions" && <><ChevronRight className="w-3.5 h-3.5 text-zinc-400" /><span>Transactions</span></>}
+            {pathname.match(/^\/staff\/dashboard\/[^/]+$/) && !["/staff/dashboard/print-desk", "/staff/dashboard/transactions"].includes(pathname) && (
               <>
                 <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
                 <span className="font-mono text-zinc-800 dark:text-zinc-200 font-semibold">

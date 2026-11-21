@@ -77,7 +77,7 @@ export function StaffTicketDetail({
       {/* Back button */}
       <div>
         <Link
-          href="/staff/dashboard"
+          href="/staff/dashboard/print-desk"
           className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />

@@ -16,6 +16,8 @@ import {
   StickyNote,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface TicketWithFiles extends Ticket {
   files: PrintFile[];
@@ -39,6 +41,7 @@ export function StaffTicketTable() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState("newest");
 
   const fetchTickets = useCallback(async (quiet = false) => {
     try {
@@ -62,11 +65,14 @@ export function StaffTicketTable() {
   }, [router]);
 
   useEffect(() => {
-    fetchTickets();
+    const initialFetch = setTimeout(() => fetchTickets(), 0);
     const interval = setInterval(() => {
       fetchTickets(true);
     }, 5000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initialFetch);
+      clearInterval(interval);
+    };
   }, [fetchTickets]);
 
   const filteredTickets = tickets.filter((ticket) => {
@@ -88,7 +94,21 @@ export function StaffTicketTable() {
       return ticket.files.every((f) => f.status === "done");
     }
     return true;
-  });
+  }).sort((a, b) => sortOrder === "oldest" ? a.created_at - b.created_at : b.created_at - a.created_at);
+
+  const exportCsv = () => {
+    const escape = (value: unknown) => {
+      const text = String(value ?? "");
+      return `"${`${/^[=+@\-\t\r]/.test(text) ? "'" : ""}${text}`.replaceAll('"', '""')}"`;
+    };
+    const rows = [["Ticket", "Client", "Created", "Files", "Status"], ...filteredTickets.map((ticket) => [ticket.ticket_code, ticket.client_name, new Date(ticket.created_at).toISOString(), ticket.files.map((file) => file.file_name).join("; "), ticket.files.map((file) => file.status).join("; ")])];
+    const csv = rows.map((row) => row.map(escape).join(",")).join("\r\n");
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    link.download = "print-transactions.csv";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  };
 
   return (
     <div className="space-y-6">
@@ -172,27 +192,14 @@ export function StaffTicketTable() {
       {/* Filter and Search Bar */}
       <div className="bg-white dark:bg-zinc-900 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
         {/* Filter Tabs */}
-        <div className="inline-flex rounded-lg border border-zinc-200 dark:border-zinc-800 p-1 bg-zinc-100 dark:bg-zinc-800 text-xs">
-          {[
-            { id: "all", label: t("all_tickets_tab") },
-            { id: "queued", label: t("queued_tab") },
-            { id: "printing", label: t("printing_tab") },
-            { id: "done", label: t("completed_tab") },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setFilterStatus(tab.id)}
-              className={`px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer ${
-                filterStatus === tab.id
-                  ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs"
-                  : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs value={filterStatus} onValueChange={setFilterStatus}>
+          <TabsList aria-label="Filter transactions by status">
+            <TabsTrigger value="all">{t("all_tickets_tab")}</TabsTrigger>
+            <TabsTrigger value="queued">{t("queued_tab")}</TabsTrigger>
+            <TabsTrigger value="printing">{t("printing_tab")}</TabsTrigger>
+            <TabsTrigger value="done">{t("completed_tab")}</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {/* Search Input */}
         <div className="relative min-w-[220px]">
@@ -204,6 +211,13 @@ export function StaffTicketTable() {
             placeholder={t("search_placeholder")}
             className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900"
           />
+        </div>
+        <div className="flex gap-2">
+          <Select value={sortOrder} onValueChange={setSortOrder}>
+            <SelectTrigger aria-label="Sort transactions"><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="newest">Newest first</SelectItem><SelectItem value="oldest">Oldest first</SelectItem></SelectContent>
+          </Select>
+          <button type="button" onClick={exportCsv} className="px-3 py-2 rounded-lg bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-medium">Export CSV</button>
         </div>
       </div>
 

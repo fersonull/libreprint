@@ -60,9 +60,24 @@ export async function GET(request: Request) {
       cancelledFiles: allFiles.filter((f) => f.status === "cancelled").length,
     };
 
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const daily = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(today);
+      date.setUTCDate(today.getUTCDate() - 6 + index);
+      const nextDate = new Date(date);
+      nextDate.setUTCDate(date.getUTCDate() + 1);
+      return {
+        date: date.toISOString().slice(0, 10),
+        label: date.toLocaleDateString("en", { month: "short", day: "numeric", timeZone: "UTC" }),
+        transactions: tickets.filter((ticket) => ticket.created_at >= date.getTime() && ticket.created_at < nextDate.getTime()).length,
+      };
+    });
+
     return NextResponse.json({
       tickets: ticketsWithFiles,
       stats,
+      daily,
     });
   } catch (error) {
     console.error("Staff tickets fetch error:", error);

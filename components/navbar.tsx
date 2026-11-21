@@ -37,7 +37,7 @@ export function Navbar({ currentPath = "/upload", isStaff = false }: NavbarProps
             <span className="hidden sm:inline">{t("upload_nav")}</span>
           </Link>
 
-          <Link
+          {isStaff && <Link
             href="/staff/dashboard"
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
               currentPath.startsWith("/staff")
@@ -47,7 +47,7 @@ export function Navbar({ currentPath = "/upload", isStaff = false }: NavbarProps
           >
             <Shield className="w-3.5 h-3.5 shrink-0" />
             <span>{t("staff_nav")}</span>
-          </Link>
+          </Link>}
 
           <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800 mx-1" />
 

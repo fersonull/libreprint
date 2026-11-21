@@ -15,26 +15,39 @@ import {
   Loader2,
   AlertCircle,
   StickyNote,
+  Info,
 } from "lucide-react";
 
 interface DocumentPreviewProps {
   file: PrintFile;
-  onStatusChange: (fileId: string, newStatus: "queued" | "printing" | "done" | "cancelled") => Promise<void>;
+  onStatusChange: (
+    fileId: string,
+    newStatus: "queued" | "printing" | "done" | "cancelled",
+  ) => Promise<void>;
 }
 
-export function DocumentPreview({ file, onStatusChange }: DocumentPreviewProps) {
+export function DocumentPreview({
+  file,
+  onStatusChange,
+}: DocumentPreviewProps) {
   const { t } = useI18n();
   const [isUpdating, setIsUpdating] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
 
   const fileUrl = `/api/files/${file.id}`;
-  const isPdf = file.file_type === "application/pdf" || file.file_name.toLowerCase().endsWith(".pdf");
+  const isPdf =
+    file.file_type === "application/pdf" ||
+    file.file_name.toLowerCase().endsWith(".pdf");
   const isImage =
     file.file_type.startsWith("image/") ||
-    [".png", ".jpg", ".jpeg"].some((ext) => file.file_name.toLowerCase().endsWith(ext));
+    [".png", ".jpg", ".jpeg"].some((ext) =>
+      file.file_name.toLowerCase().endsWith(ext),
+    );
 
-  const handleAction = async (status: "queued" | "printing" | "done" | "cancelled") => {
+  const handleAction = async (
+    status: "queued" | "printing" | "done" | "cancelled",
+  ) => {
     try {
       setIsUpdating(true);
       setErrorMsg(null);
@@ -79,6 +92,8 @@ export function DocumentPreview({ file, onStatusChange }: DocumentPreviewProps) 
               {file.copies} {file.copies === 1 ? "Copy" : "Copies"}
             </span>
             <span>•</span>
+            <span>Pages: {file.pages || "All"}</span>
+            <span>•</span>
             <span className="font-medium uppercase text-[11px]">
               {file.color_mode === "color" ? "Color" : "B&W"}
             </span>
@@ -90,8 +105,8 @@ export function DocumentPreview({ file, onStatusChange }: DocumentPreviewProps) 
 
           {/* Customer notes / instructions callout */}
           {file.notes && (
-            <div className="mt-2 text-xs bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-amber-900 dark:text-amber-200 px-3 py-1.5 rounded-lg flex items-center gap-2">
-              <StickyNote className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <div className="mt-2 text-sm  py-1.5 rounded-lg flex items-center gap-2">
+              <Info className="w-3.5 h-3.5 shrink-0" />
               <span>
                 <strong>Note:</strong> {file.notes}
               </span>
@@ -150,7 +165,9 @@ export function DocumentPreview({ file, onStatusChange }: DocumentPreviewProps) 
             </button>
           )}
 
-          {isUpdating && <Loader2 className="w-4 h-4 animate-spin text-zinc-500 ml-1" />}
+          {isUpdating && (
+            <Loader2 className="w-4 h-4 animate-spin text-zinc-500 ml-1" />
+          )}
         </div>
       </div>
 
@@ -195,7 +212,9 @@ export function DocumentPreview({ file, onStatusChange }: DocumentPreviewProps) 
         ) : (
           <div className="text-center p-8 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-300 dark:border-zinc-800 max-w-md w-full">
             <FileText className="w-12 h-12 text-zinc-400 mx-auto mb-3" />
-            <p className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm mb-1">{file.file_name}</p>
+            <p className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm mb-1">
+              {file.file_name}
+            </p>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
               Open document to print via browser print dialog.
             </p>

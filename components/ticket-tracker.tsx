@@ -12,8 +12,6 @@ import {
   CheckCircle,
   RefreshCw,
   Printer,
-  Wifi,
-  WifiOff,
   StickyNote,
 } from "lucide-react";
 
@@ -45,7 +43,6 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
   const { t } = useI18n();
   const [ticket] = useState<Ticket>(initialTicket);
   const [files, setFiles] = useState<PrintFile[]>(initialFiles);
-  const [isConnected, setIsConnected] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const eventSourceRef = useRef<EventSource | null>(null);
 
@@ -77,10 +74,6 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
       const es = new EventSource(`/api/tickets/${ticket.id}/stream`);
       eventSourceRef.current = es;
 
-      es.onopen = () => {
-        setIsConnected(true);
-      };
-
       es.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
@@ -104,7 +97,6 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
       };
 
       es.onerror = () => {
-        setIsConnected(false);
         es.close();
         reconnectTimeout = setTimeout(connectSSE, 3000);
       };
@@ -164,26 +156,6 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
           </div>
 
           <div className="flex items-center gap-2">
-            <span
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${
-                isConnected
-                  ? "border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
-                  : "border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300"
-              }`}
-            >
-              {isConnected ? (
-                <>
-                  <Wifi className="w-2.5 h-2.5" />
-                  <span>{t("live_connected")}</span>
-                </>
-              ) : (
-                <>
-                  <WifiOff className="w-2.5 h-2.5" />
-                  <span>{t("reconnecting")}</span>
-                </>
-              )}
-            </span>
-
             <button
               type="button"
               onClick={refreshData}

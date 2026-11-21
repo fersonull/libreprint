@@ -140,7 +140,7 @@ function LoginForm() {
 export default function StaffLoginPage() {
   return (
     <div className="min-h-screen flex flex-col bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
-      <Navbar currentPath="/staff/login" />
+      <Navbar currentPath="/staff/login" isStaff />
 
       <main className="flex-1 flex items-center justify-center p-4">
         <Suspense

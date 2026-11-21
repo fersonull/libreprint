@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Copy, Check } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 interface PaperTicketProps {
@@ -18,12 +18,44 @@ export function PaperTicket({
   totalFiles,
 }: PaperTicketProps) {
   const { t } = useI18n();
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<"copied" | "error" | null>(null);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(ticketCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(ticketCode);
+        } catch {
+          copyWithFallback();
+        }
+      } else {
+        copyWithFallback();
+      }
+      setCopyState("copied");
+    } catch (error) {
+      console.error("Failed to copy ticket code:", error);
+      setCopyState("error");
+    }
+    setTimeout(() => setCopyState(null), 2000);
+  };
+
+  const copyWithFallback = () => {
+    const input = document.createElement("textarea");
+    input.value = ticketCode;
+    input.setAttribute("readonly", "");
+    input.style.position = "fixed";
+    input.style.opacity = "0";
+    document.body.appendChild(input);
+    let succeeded = false;
+    try {
+      input.focus();
+      input.select();
+      input.setSelectionRange(0, input.value.length);
+      succeeded = document.execCommand("copy");
+    } finally {
+      input.remove();
+    }
+    if (!succeeded) throw new Error("Clipboard copy is unavailable");
   };
 
   const formattedTime = new Date(createdAt).toLocaleTimeString([], {
@@ -110,16 +142,6 @@ export function PaperTicket({
             className="fill-zinc-400 dark:fill-zinc-500 text-[10px] uppercase font-mono tracking-widest font-semibold"
           >
             LIBREPRINT • CLAIM STUB
-          </text>
-
-          {/* Large Monospace Ticket Code */}
-          <text
-            x="190"
-            y="76"
-            textAnchor="middle"
-            className="fill-zinc-950 dark:fill-zinc-50 text-[36px] font-mono font-bold tracking-tight"
-          >
-            {ticketCode}
           </text>
 
           <text
@@ -225,27 +247,20 @@ export function PaperTicket({
           </text>
         </svg>
 
-        {/* Copy Button Overlay in top right */}
-        <div className="absolute top-4 right-4 z-10">
+        {/* Ticket code and copy control share one centered line. */}
+        <div className="absolute left-1/2 top-[19%] z-10 flex -translate-x-1/2 items-center gap-2">
+          <span className="whitespace-nowrap font-mono text-2xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50 sm:text-3xl">{ticketCode}</span>
           <button
             type="button"
             onClick={handleCopy}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-medium rounded-md bg-white/90 dark:bg-zinc-800/90 border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors shadow-xs cursor-pointer"
-            title={t("copy_code")}
+            aria-label={copyState === "copied" ? t("copied") : copyState === "error" ? t("copy_failed") : t("copy_code")}
+            title={copyState === "copied" ? t("copied") : copyState === "error" ? t("copy_failed") : t("copy_code")}
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-zinc-600 transition-colors hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
-            {copied ? (
-              <>
-                <Check className="w-3 h-3 text-zinc-900 dark:text-zinc-100" />
-                <span className="font-sans text-[11px] font-semibold">{t("copied")}</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
-                <span className="font-sans text-[11px]">{t("copy_code")}</span>
-              </>
-            )}
+            {copyState === "copied" ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
           </button>
         </div>
+        <span className="sr-only" aria-live="polite">{copyState === "copied" ? t("copied") : copyState === "error" ? t("copy_failed") : ""}</span>
       </div>
     </div>
   );

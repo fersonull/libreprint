@@ -25,6 +25,7 @@ interface UploadFileItem {
   id: string;
   file: File;
   copies: number;
+  pages: string;
   colorMode: "bw" | "color";
   paperSize: PaperSize;
   orientation: Orientation;
@@ -81,6 +82,7 @@ export function UploadForm() {
             id: `${file.name}-${Date.now()}-${Math.random()}`,
             file,
             copies: 1,
+            pages: "All",
             colorMode: "bw",
             paperSize: "A4",
             orientation: "portrait",
@@ -152,6 +154,7 @@ export function UploadForm() {
         string,
         {
           copies: number;
+          pages: string;
           colorMode: "bw" | "color";
           paperSize: PaperSize;
           orientation: Orientation;
@@ -164,6 +167,7 @@ export function UploadForm() {
         formData.append("files", item.file);
         optionsMap[item.file.name] = {
           copies: item.copies,
+          pages: item.pages,
           colorMode: item.colorMode,
           paperSize: item.paperSize,
           orientation: item.orientation,
@@ -442,6 +446,11 @@ export function UploadForm() {
                         </button>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <label className="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1" htmlFor={`pages-${item.id}`}>Pages to print</label>
+                    <input id={`pages-${item.id}`} type="text" value={item.pages} onChange={(e) => updateItem(item.id, { pages: e.target.value })} placeholder="All (or 1-3, 5)" className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm text-zinc-900 dark:text-zinc-100" />
                   </div>
 
                   {/* Special Notes / Instructions Field */}

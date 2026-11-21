@@ -17,6 +17,7 @@ export interface PrintFile {
   file_type: string;
   file_size: number;
   copies: number;
+  pages: string;
   color_mode: "bw" | "color";
   paper_size: "Short (Letter)" | "A4" | "Long (Legal)" | "A3";
   orientation: "portrait" | "landscape";
@@ -131,6 +132,7 @@ function initSchema(db: DatabaseAdapter) {
       file_type TEXT NOT NULL,
       file_size INTEGER NOT NULL,
       copies INTEGER DEFAULT 1,
+      pages TEXT DEFAULT 'All',
       color_mode TEXT DEFAULT 'bw',
       paper_size TEXT DEFAULT 'A4',
       orientation TEXT DEFAULT 'portrait',
@@ -153,6 +155,7 @@ function initSchema(db: DatabaseAdapter) {
     "ALTER TABLE print_files ADD COLUMN orientation TEXT DEFAULT 'portrait';",
     "ALTER TABLE print_files ADD COLUMN double_sided INTEGER DEFAULT 0;",
     "ALTER TABLE print_files ADD COLUMN notes TEXT;",
+    "ALTER TABLE print_files ADD COLUMN pages TEXT DEFAULT 'All';",
   ];
 
   for (const sql of migrations) {

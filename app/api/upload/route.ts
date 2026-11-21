@@ -37,6 +37,7 @@ export async function POST(request: Request) {
         paperSize?: "Short (Letter)" | "A4" | "Long (Legal)" | "A3";
         orientation?: "portrait" | "landscape";
         doubleSided?: boolean;
+        pages?: string;
         notes?: string;
       }
     > = {};
@@ -46,6 +47,14 @@ export async function POST(request: Request) {
         fileOptions = JSON.parse(optionsRaw);
       } catch {
         // Fallback to default options if invalid JSON
+      }
+    }
+
+    for (const [index, file] of files.entries()) {
+      const option = fileOptions[file.name] || fileOptions[index] || {};
+      const pages = option.pages?.trim() || "All";
+      if (pages.toLowerCase() !== "all" && !/^\d+(?:\s*[-,]\s*\d+)*$/.test(pages)) {
+        return NextResponse.json({ error: `Invalid page selection for "${file.name}".` }, { status: 400 });
       }
     }
 
@@ -86,11 +95,12 @@ export async function POST(request: Request) {
       const orientation = opts.orientation === "landscape" ? "landscape" : "portrait";
       const doubleSided = opts.doubleSided ? 1 : 0;
       const notes = opts.notes?.trim() || null;
+      const pages = opts.pages?.trim().toLowerCase() === "all" ? "All" : opts.pages?.trim() || "All";
 
       db.prepare(
         `INSERT INTO print_files 
-        (id, ticket_id, file_name, file_path, file_type, file_size, copies, color_mode, paper_size, orientation, double_sided, notes, status, created_at, printed_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?, NULL)`
+        (id, ticket_id, file_name, file_path, file_type, file_size, copies, pages, color_mode, paper_size, orientation, double_sided, notes, status, created_at, printed_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?, NULL)`
       ).run(
         fileId,
         ticketId,
@@ -99,6 +109,7 @@ export async function POST(request: Request) {
         file.type || "application/octet-stream",
         file.size,
         copies,
+        pages,
         colorMode,
         paperSize,
         orientation,
