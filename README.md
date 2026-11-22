@@ -100,3 +100,9 @@ The `.check.ts` files are small self-checks that sit next to the code they test.
 ## Built with
 
 Next.js 16 (App Router), React 19, Tailwind CSS 4, shadcn/ui on Radix, Zustand, Recharts, lucide icons and SQLite.
+
+## License
+
+Copyright 2026 fersonull.
+
+Licensed under the [Apache License, Version 2.0](LICENSE). You may use, modify and distribute this project under its terms; it is provided "as is", without warranties.
