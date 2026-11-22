@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { RefreshCw, Printer, StickyNote } from "lucide-react";
 import { StatusPlates, type PlateStage } from "@/components/illustrations";
 import { FileGlyph } from "@/components/file-glyph";
+import { ticketProgress } from "./progress";
 
 interface TicketTrackerProps {
   initialTicket: Ticket;
@@ -104,13 +105,16 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
     };
   }, [ticket.id, refreshData]);
 
-  const totalFiles = files.length;
-  const doneFiles = files.filter((f) => f.status === "done").length;
-  const printingFiles = files.filter((f) => f.status === "printing").length;
-  const allDone = totalFiles > 0 && doneFiles === totalFiles;
+  const { total: totalFiles, done: doneFiles, printing: printingFiles, allDone, allCancelled } = ticketProgress(files);
 
   const stage: PlateStage = allDone ? "done" : printingFiles > 0 || doneFiles > 0 ? "printing" : "queued";
-  const headline = allDone ? t("all_ready") : printingFiles > 0 ? t("currently_printing") : t("queued_status");
+  const headline = allCancelled
+    ? t("ticket_cancelled")
+    : allDone
+      ? t("all_ready")
+      : printingFiles > 0
+        ? t("currently_printing")
+        : t("queued_status");
 
   return (
     <div className="space-y-5">
@@ -118,7 +122,7 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
         ticketCode={ticket.ticket_code}
         clientName={ticket.client_name}
         createdAt={ticket.created_at}
-        totalFiles={totalFiles}
+        totalFiles={files.length}
       />
 
       {/* Live status */}
@@ -135,9 +139,11 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
             >
               {headline}
             </h2>
-            <p className="mt-0.5 font-mono text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
-              {doneFiles} / {totalFiles} · {t("progress")}
-            </p>
+            {!allCancelled && (
+              <p className="mt-0.5 font-mono text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
+                {doneFiles} / {totalFiles} · {t("progress")}
+              </p>
+            )}
           </div>
           <button
             type="button"
@@ -151,10 +157,12 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
           </button>
         </div>
 
-        <StatusPlates
-          stage={stage}
-          labels={{ queued: t("stage_queued"), printing: t("stage_printing"), done: t("stage_done") }}
-        />
+        {!allCancelled && (
+          <StatusPlates
+            stage={stage}
+            labels={{ queued: t("stage_queued"), printing: t("stage_printing"), done: t("stage_done") }}
+          />
+        )}
       </section>
 
       {/* Documents */}
@@ -163,7 +171,7 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
         className="rounded-2xl bg-card shadow-card"
       >
         <h2 id="docs-heading" className="px-5 pt-5 pb-2 text-[15px] font-semibold text-foreground sm:px-7">
-          {t("documents_heading")} <span className="font-mono text-xs font-normal text-zinc-400">({totalFiles})</span>
+          {t("documents_heading")} <span className="font-mono text-xs font-normal text-zinc-400">({files.length})</span>
         </h2>
 
         <ul className="divide-y divide-border">
