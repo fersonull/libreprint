@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, CheckCheck, ExternalLink, Printer, StickyNote, XCircle } from "lucide-react";
+import { useEffect, useRef, useState, useSyncExternalStore, type Ref } from "react";
+import { CheckCheck, ExternalLink, Printer, StickyNote, XCircle } from "lucide-react";
 import type { PrintFile, Ticket } from "@/lib/db";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -16,6 +15,16 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { clockTime, plural, timeAgo } from "../format";
 
 const fileUrl = (file: PrintFile) => `/api/files/${file.id}`;
+/** 44px tall on phones, the default 36px from sm up. */
+const TAP = "h-11 sm:h-9";
+const noop = () => () => {};
+
+/** Opens a tab and reports whether the browser allowed it. (noopener would make window.open always return null.) */
+function openTab(url: string) {
+  const win = window.open(url, "_blank");
+  if (win) win.opener = null;
+  return win !== null;
+}
 
 function specLine(file: PrintFile) {
   return [
@@ -34,6 +43,34 @@ export function TicketWorkspace({ ticket, initialFiles }: { ticket: Ticket; init
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cancelId, setCancelId] = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Live: another staff member or tab can change this ticket. The stream sends each status change;
+  // a full reload on (re)connect catches anything missed while disconnected.
+  useEffect(() => {
+    const reload = async () => {
+      const res = await fetch(`/api/tickets/${ticket.id}`).catch(() => null);
+      if (res?.ok) setFiles(((await res.json()) as { files: PrintFile[] }).files);
+    };
+    const es = new EventSource(`/api/tickets/${ticket.id}/stream`);
+    es.onopen = () => void reload();
+    es.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type !== "status-update") return;
+      setFiles((prev) =>
+        prev.map((f) => (f.id === data.fileId ? { ...f, status: data.status, printed_at: data.printedAt ?? f.printed_at } : f))
+      );
+    };
+    return () => es.close();
+  }, [ticket.id]);
+
+  // Below lg the panel sits under the list, so bring it into view or the tap looks like it did nothing.
+  const selectFile = (id: string) => {
+    setSelectedId(id);
+    if (window.matchMedia("(min-width: 1024px)").matches) return;
+    const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    panelRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+  };
 
   const selected = files.find((f) => f.id === selectedId) ?? files[0];
   const printable = files.filter((f) => f.status !== "cancelled");
@@ -61,8 +98,14 @@ export function TicketWorkspace({ ticket, initialFiles }: { ticket: Ticket; init
   };
 
   const openAndPrint = (file: PrintFile) => {
-    window.open(fileUrl(file), "_blank", "noopener");
+    if (!openTab(fileUrl(file))) return setError("The browser blocked the new tab. Allow pop-ups for this site and try again.");
     if (file.status === "queued") void setStatus(file.id, "printing");
+  };
+
+  // Browsers allow one new tab per click, so after the first, any blocked tab is reported rather than silently lost.
+  const openAll = () => {
+    const blocked = printable.filter((f) => !openTab(fileUrl(f))).length;
+    setError(blocked ? `The browser blocked ${plural(blocked, "tab")}. Allow pop-ups for this site, then press Open all again.` : null);
   };
 
   // Cancelled documents stay cancelled; everything else is finished.
@@ -74,22 +117,13 @@ export function TicketWorkspace({ ticket, initialFiles }: { ticket: Ticket; init
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <Button asChild variant="ghost" size="sm" className="-ml-2 text-muted-foreground">
-          <Link href="/staff/dashboard/print-desk">
-            <ArrowLeft data-icon="inline-start" aria-hidden="true" />
-            Print desk
-          </Link>
-        </Button>
-      </div>
-
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex min-w-0 flex-col gap-1.5">
           <div className="flex items-center gap-3">
             <h1 className="font-mono text-3xl font-bold tracking-tight">{ticket.ticket_code}</h1>
             {allDone && <StatusBadge status="done" />}
           </div>
-          <p className="truncate text-sm text-muted-foreground">
+          <p className="text-sm text-pretty break-words text-muted-foreground">
             <span className="font-medium text-foreground">{ticket.client_name}</span>
             {" · "}submitted {clockTime(ticket.created_at)} ({timeAgo(ticket.created_at)} ago)
             {" · "}
@@ -98,13 +132,13 @@ export function TicketWorkspace({ ticket, initialFiles }: { ticket: Ticket; init
         </div>
         <div className="flex shrink-0 gap-2">
           {printable.length > 1 && (
-            <Button variant="outline" onClick={() => printable.forEach((f) => window.open(fileUrl(f), "_blank", "noopener"))}>
+            <Button variant="outline" className={TAP} onClick={openAll}>
               <ExternalLink data-icon="inline-start" aria-hidden="true" />
               {t("open_all")}
             </Button>
           )}
           {!allDone && printable.length > 0 && (
-            <Button onClick={markAllDone} disabled={busyId !== null}>
+            <Button className={TAP} onClick={markAllDone} disabled={busyId !== null}>
               <CheckCheck data-icon="inline-start" aria-hidden="true" />
               {t("mark_all_done")}
             </Button>
@@ -112,14 +146,21 @@ export function TicketWorkspace({ ticket, initialFiles }: { ticket: Ticket; init
         </div>
       </header>
 
-      <div className="flex flex-col gap-1.5" aria-label="Progress">
+      <div className="flex flex-col gap-1.5">
         <div className="flex justify-between text-xs text-muted-foreground tabular-nums">
           <span>
             {doneCount} of {printable.length} printed
           </span>
           {allDone && <span>Ready for pickup</span>}
         </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+        <div
+          role="progressbar"
+          aria-label="Documents printed"
+          aria-valuemin={0}
+          aria-valuemax={printable.length}
+          aria-valuenow={doneCount}
+          className="h-1.5 overflow-hidden rounded-full bg-muted"
+        >
           <div
             className="h-full rounded-full bg-primary transition-[width] duration-500"
             style={{ width: `${printable.length ? (doneCount / printable.length) * 100 : 0}%` }}
@@ -143,7 +184,7 @@ export function TicketWorkspace({ ticket, initialFiles }: { ticket: Ticket; init
                 <li key={file.id}>
                   <button
                     type="button"
-                    onClick={() => setSelectedId(file.id)}
+                    onClick={() => selectFile(file.id)}
                     aria-current={isSelected ? "true" : undefined}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50",
@@ -166,6 +207,7 @@ export function TicketWorkspace({ ticket, initialFiles }: { ticket: Ticket; init
 
         {selected && (
           <DocumentPanel
+            ref={panelRef}
             file={selected}
             busy={busyId === selected.id}
             onPrint={() => openAndPrint(selected)}
@@ -208,12 +250,14 @@ function StatusDot({ status }: { status: PrintStatus }) {
 }
 
 function DocumentPanel({
+  ref,
   file,
   busy,
   onPrint,
   onStatus,
   onCancel,
 }: {
+  ref: Ref<HTMLDivElement>;
   file: PrintFile;
   busy: boolean;
   onPrint: () => void;
@@ -226,6 +270,8 @@ function DocumentPanel({
   const isPdf = file.file_type === "application/pdf" || name.endsWith(".pdf");
   const isImage = file.file_type.startsWith("image/") || /\.(png|jpe?g)$/.test(name);
   const active = file.status === "queued" || file.status === "printing";
+  // Most phone browsers cannot show a PDF inside the page; there the Open button is the way in.
+  const inlinePdf = useSyncExternalStore(noop, () => navigator.pdfViewerEnabled !== false, () => true);
 
   const specs = [
     ["Paper", file.paper_size || "A4"],
@@ -237,7 +283,7 @@ function DocumentPanel({
   ];
 
   return (
-    <Card className="gap-0 py-0">
+    <Card ref={ref} className="scroll-mt-20 gap-0 py-0">
       <div className="flex flex-col gap-3 border-b p-4 sm:p-5 2xl:flex-row 2xl:items-center 2xl:justify-between">
         <div className="flex min-w-0 items-center gap-3">
           <FileName name={file.file_name} className="text-base font-semibold" />
@@ -246,31 +292,31 @@ function DocumentPanel({
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           {busy && <Spinner className="size-4 text-muted-foreground" />}
           {active && (
-            <Button variant="ghost" onClick={onCancel} disabled={busy} className="text-muted-foreground hover:text-destructive">
+            <Button variant="ghost" onClick={onCancel} disabled={busy} className={cn(TAP, "text-muted-foreground hover:text-destructive")}>
               <XCircle data-icon="inline-start" aria-hidden="true" />
               {t("cancel_btn")}
             </Button>
           )}
           {file.status === "queued" && (
-            <Button onClick={onPrint} disabled={busy}>
+            <Button className={TAP} onClick={onPrint} disabled={busy}>
               <Printer data-icon="inline-start" aria-hidden="true" />
               {t("open_and_print")}
             </Button>
           )}
           {file.status === "printing" && (
             <>
-              <Button variant="outline" onClick={onPrint}>
+              <Button variant="outline" className={TAP} onClick={onPrint}>
                 <ExternalLink data-icon="inline-start" aria-hidden="true" />
                 Open again
               </Button>
-              <Button onClick={() => onStatus("done")} disabled={busy}>
+              <Button className={TAP} onClick={() => onStatus("done")} disabled={busy}>
                 <CheckCheck data-icon="inline-start" aria-hidden="true" />
                 {t("mark_done")}
               </Button>
             </>
           )}
           {!active && (
-            <Button variant="outline" onClick={onPrint}>
+            <Button variant="outline" className={TAP} onClick={onPrint}>
               <ExternalLink data-icon="inline-start" aria-hidden="true" />
               Open
             </Button>
@@ -298,7 +344,7 @@ function DocumentPanel({
       )}
 
       <div className="bg-muted/40 p-2 sm:p-4">
-        {isPdf ? (
+        {isPdf && inlinePdf ? (
           <iframe src={`${url}#toolbar=1`} title={`Preview of ${file.file_name}`} className="h-[70vh] min-h-[420px] w-full rounded-md border bg-background" />
         ) : isImage ? (
           <div className="flex max-h-[70vh] items-center justify-center overflow-auto rounded-md border bg-background p-2">
@@ -308,8 +354,8 @@ function DocumentPanel({
         ) : (
           <div className="flex flex-col items-center gap-3 rounded-md border bg-background px-6 py-16 text-center">
             <FileGlyph fileName={file.file_name} className="scale-150" />
-            <p className="mt-2 text-sm font-medium">No preview for this file type</p>
-            <p className="max-w-xs text-xs text-muted-foreground">Open it in its own tab and print from the browser or Word.</p>
+            <p className="mt-2 text-sm font-medium">{isPdf ? "This browser can't preview PDFs here" : "No preview for this file type"}</p>
+            <p className="max-w-xs text-xs text-muted-foreground">{isPdf ? "Open it in its own tab and print from there." : "Open it in its own tab and print from the browser or Word."}</p>
           </div>
         )}
       </div>
