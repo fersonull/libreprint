@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem } from "@/components/ui/pagination";
+import { Button } from "@/shared/components/ui/button";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem } from "@/shared/components/ui/pagination";
 import { pageWindow } from "./format";
 
 /**

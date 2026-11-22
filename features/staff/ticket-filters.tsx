@@ -3,11 +3,11 @@
 import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/shared/lib/utils";
+import { Input } from "@/shared/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { Spinner } from "@/shared/components/ui/spinner";
 
 export interface FilterTab {
   value: string;

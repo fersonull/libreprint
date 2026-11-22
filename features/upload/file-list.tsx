@@ -2,10 +2,10 @@
 
 import type { ReactNode } from "react";
 import { X } from "lucide-react";
-import { cn, formatFileSize } from "@/lib/utils";
-import { useI18n } from "@/lib/i18n";
-import { Button } from "@/components/ui/button";
-import { FileGlyph, FileName } from "@/components/file-glyph";
+import { cn, formatFileSize } from "@/shared/lib/utils";
+import { useI18n } from "@/shared/lib/i18n";
+import { Button } from "@/shared/components/ui/button";
+import { FileGlyph, FileName } from "@/shared/components/file-glyph";
 import type { UploadFileItem } from "./upload-form";
 import { PAPER_SPECS } from "./sheet-preview";
 

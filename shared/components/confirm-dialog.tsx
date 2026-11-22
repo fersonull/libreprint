@@ -2,7 +2,7 @@
 
 import React from "react";
 import { AlertTriangle } from "lucide-react";
-import { useI18n } from "@/lib/i18n";
+import { useI18n } from "@/shared/lib/i18n";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,7 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogMedia,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/shared/components/ui/alert-dialog";
 
 interface ConfirmDialogProps {
   isOpen: boolean;

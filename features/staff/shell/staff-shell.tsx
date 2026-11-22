@@ -4,12 +4,12 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, Printer, Inbox, UploadCloud, LogOut, PanelLeftClose, PanelLeft, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useI18n } from "@/lib/i18n";
-import { LibrePrintLogo } from "@/components/logo";
-import { ThemeToggle, LanguageToggle } from "@/components/controls";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/shared/lib/utils";
+import { useI18n } from "@/shared/lib/i18n";
+import { LibrePrintLogo } from "@/shared/components/logo";
+import { ThemeToggle, LanguageToggle } from "@/shared/components/controls";
+import { Button } from "@/shared/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useSidebarStore } from "./sidebar-store";
 
 const NAV: { title: string; href: string; icon: typeof Printer; exact?: boolean }[] = [

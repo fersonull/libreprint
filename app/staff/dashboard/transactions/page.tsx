@@ -1,7 +1,5 @@
-import { countTicketsByStatus, listTickets } from "@/features/staff/queries";
-import { readListParams } from "@/features/staff/search-params";
-import { TRANSACTION_FILTERS, TRANSACTION_SORTS } from "@/features/staff/transactions/options";
-import { TransactionsTable } from "@/features/staff/transactions/transactions-table";
+import { countTicketsByStatus, listTickets } from "@/features/staff/server";
+import { TRANSACTION_FILTERS, TRANSACTION_SORTS, TransactionsTable, readListParams } from "@/features/staff";
 
 export default async function TransactionsPage({
   searchParams,

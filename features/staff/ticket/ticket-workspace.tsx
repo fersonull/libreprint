@@ -2,16 +2,16 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore, type Ref } from "react";
 import { CheckCheck, ExternalLink, Printer, StickyNote, XCircle } from "lucide-react";
-import type { PrintFile, Ticket } from "@/lib/db";
-import { useI18n } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Spinner } from "@/components/ui/spinner";
-import { StatusBadge, type PrintStatus } from "@/components/status-badge";
-import { FileGlyph, FileName } from "@/components/file-glyph";
-import { ConfirmDialog } from "@/components/confirm-dialog";
+import type { PrintFile, Ticket } from "@/shared/server/db";
+import { useI18n } from "@/shared/lib/i18n";
+import { cn } from "@/shared/lib/utils";
+import { Button } from "@/shared/components/ui/button";
+import { Card } from "@/shared/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { StatusBadge, type PrintStatus } from "@/shared/components/status-badge";
+import { FileGlyph, FileName } from "@/shared/components/file-glyph";
+import { ConfirmDialog } from "@/shared/components/confirm-dialog";
 import { clockTime, plural, timeAgo } from "../format";
 
 const fileUrl = (file: PrintFile) => `/api/files/${file.id}`;

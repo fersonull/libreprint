@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { StatusBadge, PrintStatus } from "@/components/status-badge";
-import { Ticket, PrintFile } from "@/lib/db";
+import { StatusBadge, PrintStatus } from "@/shared/components/status-badge";
+import { Ticket, PrintFile } from "@/shared/server/db";
 import { PaperTicket } from "./paper-ticket";
-import { useI18n } from "@/lib/i18n";
+import { useI18n } from "@/shared/lib/i18n";
 import { RefreshCw, Printer, StickyNote } from "lucide-react";
-import { StatusPlates, type PlateStage } from "@/components/illustrations";
-import { FileGlyph, FileName } from "@/components/file-glyph";
-import { formatFileSize } from "@/lib/utils";
+import { StatusPlates, type PlateStage } from "@/shared/components/illustrations";
+import { FileGlyph, FileName } from "@/shared/components/file-glyph";
+import { formatFileSize } from "@/shared/lib/utils";
 import { ticketProgress } from "./progress";
 
 interface TicketTrackerProps {

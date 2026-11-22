@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { useTheme } from "@/lib/theme";
-import { useI18n } from "@/lib/i18n";
+import { useTheme } from "@/shared/lib/theme";
+import { useI18n } from "@/shared/lib/i18n";
 import { Sun, Moon } from "lucide-react";
 
 const base =

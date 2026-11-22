@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { StatusBadge, type PrintStatus } from "@/components/status-badge";
+import { Button } from "@/shared/components/ui/button";
+import { Card } from "@/shared/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { StatusBadge, type PrintStatus } from "@/shared/components/status-badge";
 import type { TicketSummary } from "../queries";
 import { Pager } from "../pager";
 import { TicketFilters } from "../ticket-filters";

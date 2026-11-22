@@ -1,7 +1,6 @@
-import { Navbar } from "@/components/navbar";
-import { TicketTracker } from "@/features/ticket/ticket-tracker";
-import { TicketNotFound, SubmitAnotherLink } from "@/features/ticket/ticket-not-found";
-import { getTicketWithFiles } from "@/features/staff/queries";
+import { Navbar } from "@/shared/components/navbar";
+import { SubmitAnotherLink, TicketNotFound, TicketTracker } from "@/features/ticket";
+import { getTicketWithFiles } from "@/shared/server/tickets";
 
 export default async function TicketPage({
   params,

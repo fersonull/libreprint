@@ -1,7 +1,7 @@
 "use client";
 
 import type { PaperSize, Orientation } from "./upload-form";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 /** Real sheet sizes in inches (portrait) and mm, for the drawing and caption. */
 export const PAPER_SPECS: Record<PaperSize, { w: number; h: number; mm: string; short: string }> = {

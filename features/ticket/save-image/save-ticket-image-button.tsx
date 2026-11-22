@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Download } from "lucide-react";
 import { toPng } from "html-to-image";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { useI18n } from "@/lib/i18n";
+import { Button } from "@/shared/components/ui/button";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { useI18n } from "@/shared/lib/i18n";
 import { TicketImageTemplate, type TicketImageData } from "./ticket-image-template";
 import { deliverImage } from "./deliver-image";
 

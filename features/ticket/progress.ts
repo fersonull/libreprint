@@ -1,4 +1,4 @@
-import type { PrintFile } from "@/lib/db";
+import type { PrintFile } from "@/shared/server/db";
 
 /**
  * Where a ticket stands for the customer. Cancelled documents will never be

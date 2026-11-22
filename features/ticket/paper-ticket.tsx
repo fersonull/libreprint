@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { SaveTicketImageButton } from "./save-image/save-ticket-image-button";
-import { useI18n } from "@/lib/i18n";
+import { useI18n } from "@/shared/lib/i18n";
 
 interface PaperTicketProps {
   ticketCode: string;

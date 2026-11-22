@@ -1,6 +1,5 @@
-import { countTicketsByStatus, listTickets } from "@/features/staff/queries";
-import { readListParams } from "@/features/staff/search-params";
-import { PrintDesk } from "@/features/staff/print-desk/print-desk";
+import { countTicketsByStatus, listTickets } from "@/features/staff/server";
+import { PrintDesk, readListParams } from "@/features/staff";
 
 const FILTERS = ["active", "queued", "printing", "done", "all"] as const;
 const SORTS = ["oldest", "newest"] as const;

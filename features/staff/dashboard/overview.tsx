@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from "recharts";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardAction,
@@ -11,10 +11,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
-import { StatusBadge } from "@/components/status-badge";
-import { EmptyTray } from "@/components/illustrations";
+} from "@/shared/components/ui/card";
+import { ChartContainer, ChartTooltipContent } from "@/shared/components/ui/chart";
+import { StatusBadge } from "@/shared/components/status-badge";
+import { EmptyTray } from "@/shared/components/illustrations";
 import type { getOverview, TicketSummary } from "../queries";
 import { LiveRefresh } from "../live-refresh";
 import { plural, timeAgo, when } from "../format";

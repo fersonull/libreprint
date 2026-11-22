@@ -1,4 +1,4 @@
-import { getDb } from "./db";
+import { getDb } from "@/shared/server/db";
 
 /**
  * Generates a clean human-readable ticket code e.g. PQ-4819

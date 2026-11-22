@@ -1,8 +1,8 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { cn } from "@/shared/lib/utils";
+import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 
 export interface SegmentOption<T extends string> {
   value: T;

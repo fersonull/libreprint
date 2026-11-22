@@ -1,6 +1,6 @@
 import "server-only";
-import { getDb, type PrintFile, type Ticket } from "@/lib/db";
-import type { PrintStatus } from "@/components/status-badge";
+import { getDb, type Ticket } from "@/shared/server/db";
+import type { PrintStatus } from "@/shared/components/status-badge";
 
 /** One ticket with its files rolled up, as every staff list shows it. */
 export interface TicketSummary extends Ticket {
@@ -158,16 +158,4 @@ export function getOverview() {
 
   const byStatus = countTicketsByStatus();
   return { ...files, tickets_today, active_tickets: byStatus.queued + byStatus.printing, upNext, recentlyDone, daily };
-}
-
-export function getTicketWithFiles(idOrCode: string) {
-  const db = getDb();
-  const ticket = db
-    .prepare("SELECT * FROM tickets WHERE id = ? OR UPPER(ticket_code) = UPPER(?)")
-    .get(idOrCode, idOrCode) as Ticket | undefined;
-  if (!ticket) return null;
-  const files = db
-    .prepare("SELECT * FROM print_files WHERE ticket_id = ? ORDER BY created_at ASC")
-    .all(ticket.id) as PrintFile[];
-  return { ticket, files };
 }

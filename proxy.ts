@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { isStaffHeaderAuthenticated } from "@/lib/auth";
+import { isStaffHeaderAuthenticated } from "@/shared/server/staff-session";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

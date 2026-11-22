@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { ArrowRight, Palette, StickyNote } from "lucide-react";
-import { useI18n } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { StatusBadge, type PrintStatus } from "@/components/status-badge";
-import { EmptyTray } from "@/components/illustrations";
+import { useI18n } from "@/shared/lib/i18n";
+import { cn } from "@/shared/lib/utils";
+import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
+import { Card } from "@/shared/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { StatusBadge, type PrintStatus } from "@/shared/components/status-badge";
+import { EmptyTray } from "@/shared/components/illustrations";
 import type { TicketSummary } from "../queries";
 import { LiveRefresh } from "../live-refresh";
 import { Pager } from "../pager";

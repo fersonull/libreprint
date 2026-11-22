@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { MissingStub } from "@/components/illustrations";
-import { useI18n } from "@/lib/i18n";
+import { MissingStub } from "@/shared/components/illustrations";
+import { useI18n } from "@/shared/lib/i18n";
 
 export function TicketNotFound({ code, backHref = "/upload", backLabel }: { code: string; backHref?: string; backLabel?: string }) {
   const { t } = useI18n();

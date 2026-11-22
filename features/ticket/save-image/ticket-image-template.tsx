@@ -1,5 +1,5 @@
 import type { Ref } from "react";
-import { LibrePrintLogo } from "@/components/logo";
+import { LibrePrintLogo } from "@/shared/components/logo";
 
 export interface TicketImageData {
   ticketCode: string;

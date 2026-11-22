@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { LibrePrintLogo } from "./logo";
 import { ThemeToggle, LanguageToggle } from "./controls";
-import { useI18n } from "@/lib/i18n";
+import { useI18n } from "@/shared/lib/i18n";
 import { Shield, UploadCloud } from "lucide-react";
 
 interface NavbarProps {

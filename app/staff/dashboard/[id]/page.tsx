@@ -1,6 +1,6 @@
-import { TicketNotFound } from "@/features/ticket/ticket-not-found";
-import { getTicketWithFiles } from "@/features/staff/queries";
-import { TicketWorkspace } from "@/features/staff/ticket/ticket-workspace";
+import { TicketNotFound } from "@/features/ticket";
+import { getTicketWithFiles } from "@/shared/server/tickets";
+import { TicketWorkspace } from "@/features/staff";
 
 export default async function StaffTicketPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
