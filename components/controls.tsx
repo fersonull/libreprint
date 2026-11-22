@@ -3,24 +3,24 @@
 import React from "react";
 import { useTheme } from "@/lib/theme";
 import { useI18n } from "@/lib/i18n";
-import { Sun, Moon, Languages } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
+
+const base =
+  "inline-flex h-9 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-foreground dark:text-zinc-400 dark:hover:bg-zinc-800/70 dark:hover:text-zinc-100 cursor-pointer";
 
 export function ThemeToggle({ className = "" }: { className?: string }) {
   const { resolvedTheme, toggleTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button
       type="button"
       onClick={toggleTheme}
-      className={`p-1.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer ${className}`}
-      aria-label="Toggle dark mode"
-      title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      className={`${base} w-9 ${className}`}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      {resolvedTheme === "dark" ? (
-        <Sun className="w-4 h-4 text-zinc-200" />
-      ) : (
-        <Moon className="w-4 h-4 text-zinc-700" />
-      )}
+      {isDark ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
     </button>
   );
 }
@@ -28,22 +28,17 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
 export function LanguageToggle({ className = "" }: { className?: string }) {
   const { lang, setLang } = useI18n();
 
-  const toggleLang = () => {
-    setLang(lang === "en" ? "fil" : "en");
-  };
-
   return (
     <button
       type="button"
-      onClick={toggleLang}
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer ${className}`}
-      aria-label="Toggle language"
+      onClick={() => setLang(lang === "en" ? "fil" : "en")}
+      className={`${base} gap-0.5 px-2 text-[12px] font-semibold tracking-wide ${className}`}
+      aria-label={lang === "en" ? "Palitan sa Filipino" : "Switch to English"}
       title="Palitan ang wika / Change language"
     >
-      <Languages className="w-3.5 h-3.5 text-zinc-500" />
-      <span className="font-semibold uppercase text-[11px]">
-        {lang === "en" ? "FIL" : "EN"}
-      </span>
+      <span className={lang === "en" ? "text-foreground" : "text-zinc-400 dark:text-zinc-500"}>EN</span>
+      <span className="text-zinc-300 dark:text-zinc-600" aria-hidden="true">/</span>
+      <span className={lang === "fil" ? "text-foreground" : "text-zinc-400 dark:text-zinc-500"}>FIL</span>
     </button>
   );
 }

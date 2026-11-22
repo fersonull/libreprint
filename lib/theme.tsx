@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useSyncExternalStore } from "react";
 
 type Theme = "light" | "dark" | "system";
 
@@ -11,6 +11,40 @@ interface ThemeContextType {
   toggleTheme: () => void;
 }
 
+const STORAGE_KEY = "libreprint_theme";
+const listeners = new Set<() => void>();
+
+function readTheme(): Theme {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === "light" || saved === "dark" || saved === "system") return saved;
+  } catch {}
+  return "system";
+}
+
+function systemDark() {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+function subscribe(callback: () => void) {
+  listeners.add(callback);
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  media.addEventListener("change", callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    listeners.delete(callback);
+    media.removeEventListener("change", callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+/* Snapshot is "<theme>:<resolved>" so one string carries both values. */
+function getSnapshot() {
+  const theme = readTheme();
+  const dark = theme === "dark" || (theme === "system" && systemDark());
+  return `${theme}:${dark ? "dark" : "light"}`;
+}
+
 const ThemeContext = createContext<ThemeContextType>({
   theme: "system",
   resolvedTheme: "light",
@@ -19,60 +53,27 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("system");
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
+  const snapshot = useSyncExternalStore(subscribe, getSnapshot, () => "system:light");
+  const [theme, resolved] = snapshot.split(":") as [Theme, "light" | "dark"];
 
+  // Keep the <html> class in step with the store (the inline script in layout handles first paint).
   useEffect(() => {
-    const saved = localStorage.getItem("libreprint_theme") as Theme | null;
-    if (saved && ["light", "dark", "system"].includes(saved)) {
-      setThemeState(saved);
-    }
+    document.documentElement.classList.toggle("dark", resolved === "dark");
+  }, [resolved]);
+
+  const setTheme = useCallback((next: Theme) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, next);
+    } catch {}
+    listeners.forEach((l) => l());
   }, []);
 
-  useEffect(() => {
-    const root = document.documentElement;
-
-    const applyTheme = () => {
-      let isDark = false;
-      if (theme === "dark") {
-        isDark = true;
-      } else if (theme === "light") {
-        isDark = false;
-      } else {
-        isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      }
-
-      if (isDark) {
-        root.classList.add("dark");
-        setResolvedTheme("dark");
-      } else {
-        root.classList.remove("dark");
-        setResolvedTheme("light");
-      }
-    };
-
-    applyTheme();
-
-    if (theme === "system") {
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      const handler = () => applyTheme();
-      mediaQuery.addEventListener("change", handler);
-      return () => mediaQuery.removeEventListener("change", handler);
-    }
-  }, [theme]);
-
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem("libreprint_theme", newTheme);
-  };
-
-  const toggleTheme = () => {
-    const next = resolvedTheme === "dark" ? "light" : "dark";
-    setTheme(next);
-  };
+  const toggleTheme = useCallback(() => {
+    setTheme(resolved === "dark" ? "light" : "dark");
+  }, [resolved, setTheme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, resolvedTheme: resolved, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

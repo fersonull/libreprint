@@ -15,26 +15,31 @@ export function StatusBadge({ status, size = "md", className = "" }: StatusBadge
     queued: {
       label: "Queued",
       dot: "bg-amber-500 dark:bg-amber-400",
+      tone: "bg-amber-50 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200",
       isPulse: false,
     },
     printing: {
       label: "Printing",
-      dot: "bg-blue-600 dark:bg-blue-400",
+      dot: "bg-primary",
+      tone: "bg-accent text-foreground",
       isPulse: true,
     },
     done: {
       label: "Done",
       dot: "bg-emerald-600 dark:bg-emerald-400",
+      tone: "bg-emerald-50 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200",
       isPulse: false,
     },
     cancelled: {
       label: "Cancelled",
       dot: "bg-rose-500 dark:bg-rose-400",
+      tone: "bg-rose-50 text-rose-900 dark:bg-rose-950/50 dark:text-rose-200",
       isPulse: false,
     },
   }[normStatus] || {
     label: normStatus,
     dot: "bg-zinc-400",
+    tone: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
     isPulse: false,
   };
 
@@ -48,7 +53,7 @@ export function StatusBadge({ status, size = "md", className = "" }: StatusBadge
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 ${sizeClasses} ${className}`}
+      className={`inline-flex items-center rounded-full font-medium ${config.tone} ${sizeClasses} ${className}`}
       role="status"
       aria-label={`Status: ${config.label}`}
     >

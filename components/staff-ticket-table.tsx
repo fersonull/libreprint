@@ -5,16 +5,8 @@ import Link from "next/link";
 import { Ticket, PrintFile } from "@/lib/db";
 import { StatusBadge, PrintStatus } from "./status-badge";
 import { useI18n } from "@/lib/i18n";
-import {
-  Printer,
-  Search,
-  RefreshCw,
-  Clock,
-  ArrowRight,
-  Layers,
-  Inbox,
-  StickyNote,
-} from "lucide-react";
+import { Printer, Search, RefreshCw, ArrowRight, StickyNote, Download } from "lucide-react";
+import { EmptyTray } from "./illustrations";
 import { useRouter } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -110,136 +102,110 @@ export function StaffTicketTable() {
     setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   };
 
+  const tally = stats
+    ? [
+        { label: t("queued_kpi"), value: stats.queuedFiles, dot: "bg-amber-500" },
+        { label: t("printing_kpi"), value: stats.printingFiles, dot: "bg-primary" },
+        { label: t("completed_kpi"), value: stats.doneFiles, dot: "bg-emerald-600 dark:bg-emerald-400" },
+        { label: t("total_tickets_kpi"), value: stats.totalTickets, dot: "bg-zinc-400" },
+      ]
+    : [];
+
   return (
     <div className="space-y-6">
-      {/* Top Header / Actions Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-            {t("desk_title")}
-          </h1>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-            {t("desk_subtitle")}
-          </p>
+          <h1 className="text-[1.75rem] leading-tight font-semibold tracking-tight text-foreground">{t("desk_title")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("desk_subtitle")}</p>
         </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={() => fetchTickets(false)}
-            disabled={isRefreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-zinc-600" : ""}`} />
-            <span>{t("refresh")}</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => fetchTickets(false)}
+          disabled={isRefreshing}
+          className="inline-flex h-9 items-center gap-1.5 self-start rounded-lg border border-zinc-300 bg-card px-3 text-[13px] font-medium text-zinc-700 transition-colors hover:bg-zinc-50 sm:self-auto dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 cursor-pointer"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} aria-hidden="true" />
+          {t("refresh")}
+        </button>
       </div>
 
-      {/* KPI Stats Strip */}
       {stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
-            <span className="text-[11px] font-medium text-zinc-500 block mb-1">
-              {t("queued_kpi")}
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">
-                {stats.queuedFiles}
-              </span>
-              <span className="text-xs text-zinc-400">waiting</span>
+        <dl className="grid grid-cols-2 overflow-hidden rounded-2xl bg-card shadow-card sm:grid-cols-4">
+          {tally.map(({ label, value, dot }, i) => (
+            <div
+              key={label}
+              className={`px-4 py-3.5 sm:px-5 ${i % 2 ? "border-l" : ""} ${i > 1 ? "border-t sm:border-t-0" : ""} ${i === 2 ? "sm:border-l" : ""} border-border`}
+            >
+              <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <span className={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden="true" />
+                {label}
+              </dt>
+              <dd className="mt-1 font-mono text-2xl font-semibold text-foreground tabular-nums">{value}</dd>
             </div>
-          </div>
-
-          <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
-            <span className="text-[11px] font-medium text-zinc-500 block mb-1">
-              {t("printing_kpi")}
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-blue-600 dark:text-blue-400 tabular-nums">
-                {stats.printingFiles}
-              </span>
-              <span className="text-xs text-zinc-400">active</span>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
-            <span className="text-[11px] font-medium text-zinc-500 block mb-1">
-              {t("completed_kpi")}
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                {stats.doneFiles}
-              </span>
-              <span className="text-xs text-zinc-400">finished</span>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
-            <span className="text-[11px] font-medium text-zinc-500 block mb-1">
-              {t("total_tickets_kpi")}
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
-                {stats.totalTickets}
-              </span>
-              <span className="text-xs text-zinc-400">total</span>
-            </div>
-          </div>
-        </div>
+          ))}
+        </dl>
       )}
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white dark:bg-zinc-900 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
-        {/* Filter Tabs */}
-        <Tabs value={filterStatus} onValueChange={setFilterStatus}>
-          <TabsList aria-label="Filter transactions by status">
-            <TabsTrigger value="all">{t("all_tickets_tab")}</TabsTrigger>
-            <TabsTrigger value="queued">{t("queued_tab")}</TabsTrigger>
-            <TabsTrigger value="printing">{t("printing_tab")}</TabsTrigger>
-            <TabsTrigger value="done">{t("completed_tab")}</TabsTrigger>
-          </TabsList>
-        </Tabs>
+      <div className="overflow-hidden rounded-2xl bg-card shadow-card">
+        {/* Toolbar */}
+        <div className="flex flex-col gap-3 border-b border-zinc-100 p-3 lg:flex-row lg:items-center lg:justify-between dark:border-zinc-800">
+          <Tabs value={filterStatus} onValueChange={setFilterStatus}>
+            <TabsList aria-label="Filter tickets by status" className="w-full justify-start overflow-x-auto sm:w-fit">
+              <TabsTrigger value="all">{t("all_tickets_tab")}</TabsTrigger>
+              <TabsTrigger value="queued">{t("queued_tab")}</TabsTrigger>
+              <TabsTrigger value="printing">{t("printing_tab")}</TabsTrigger>
+              <TabsTrigger value="done">{t("completed_tab")}</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-        {/* Search Input */}
-        <div className="relative min-w-[220px]">
-          <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-2.5" />
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t("search_placeholder")}
-            className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900"
-          />
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <label className="relative block sm:w-64">
+              <span className="sr-only">{t("search_placeholder")}</span>
+              <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t("search_placeholder")}
+                className="h-10 w-full rounded-lg border border-zinc-300 bg-card pr-3 pl-9 text-sm text-foreground placeholder:text-zinc-400 hover:border-zinc-400 focus-visible:border-ring focus:outline-none focus:ring-3 focus-visible:ring-ring/40 dark:border-zinc-700"
+              />
+            </label>
+            <div className="flex gap-2">
+              <Select value={sortOrder} onValueChange={setSortOrder}>
+                <SelectTrigger aria-label="Sort tickets" className="flex-1 sm:flex-none"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest first</SelectItem>
+                  <SelectItem value="oldest">Oldest first</SelectItem>
+                </SelectContent>
+              </Select>
+              <button
+                type="button"
+                onClick={exportCsv}
+                className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-zinc-300 bg-card px-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              >
+                <Download className="h-4 w-4" aria-hidden="true" />
+                CSV
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Select value={sortOrder} onValueChange={setSortOrder}>
-            <SelectTrigger aria-label="Sort transactions"><SelectValue /></SelectTrigger>
-            <SelectContent><SelectItem value="newest">Newest first</SelectItem><SelectItem value="oldest">Oldest first</SelectItem></SelectContent>
-          </Select>
-          <button type="button" onClick={exportCsv} className="px-3 py-2 rounded-lg bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-medium">Export CSV</button>
-        </div>
-      </div>
 
-      {/* Tickets List */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs">
+        {/* Queue */}
         {isLoading ? (
-          <div className="p-12 text-center text-xs text-zinc-500">
-            <RefreshCw className="w-5 h-5 animate-spin mx-auto text-zinc-400 mb-2" />
-            <span>Loading queue...</span>
+          <div className="p-12 text-center text-sm text-zinc-500">
+            <RefreshCw className="mx-auto mb-2 h-5 w-5 animate-spin text-zinc-400" aria-hidden="true" />
+            Loading queue…
           </div>
         ) : filteredTickets.length === 0 ? (
-          <div className="p-12 text-center">
-            <Inbox className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mx-auto mb-2" />
-            <h3 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
-              No tickets found
-            </h3>
-            <p className="text-[11px] text-zinc-400 mt-0.5 max-w-sm mx-auto">
-              {searchQuery ? "No tickets match your search." : "Queue is empty."}
-            </p>
+          <div className="px-6 py-14 text-center">
+            <EmptyTray className="mx-auto h-24 w-auto" />
+            <h2 className="mt-4 text-[15px] font-semibold text-foreground">
+              {searchQuery ? t("no_search_results") : t("empty_queue_title")}
+            </h2>
+            {!searchQuery && <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">{t("empty_queue_body")}</p>}
           </div>
         ) : (
-          <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+          <ul className="divide-y divide-border">
             {filteredTickets.map((ticket) => {
               const fileCount = ticket.files.length;
               const hasQueued = ticket.files.some((f) => f.status === "queued");
@@ -248,72 +214,51 @@ export function StaffTicketTable() {
               const totalCopies = ticket.files.reduce((sum, f) => sum + (f.copies || 1), 0);
               const hasNotes = ticket.files.some((f) => Boolean(f.notes));
 
-              const overallStatus: PrintStatus = hasPrinting
-                ? "printing"
-                : hasQueued
-                ? "queued"
-                : allDone
-                ? "done"
-                : "queued";
+              const overallStatus: PrintStatus = hasPrinting ? "printing" : hasQueued ? "queued" : allDone ? "done" : "queued";
 
               return (
-                <div
+                <li
                   key={ticket.id}
-                  className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-zinc-50/50 dark:hover:bg-zinc-800/40 transition-colors"
+                  className="group flex flex-col gap-3 px-4 py-4 transition-colors hover:bg-zinc-50/80 sm:flex-row sm:items-center sm:gap-5 sm:px-5 dark:hover:bg-zinc-800/40"
                 >
-                  <div className="space-y-1.5 flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="font-mono font-bold text-base text-zinc-900 dark:text-zinc-100 tracking-tight">
-                        {ticket.ticket_code}
-                      </span>
-                      <StatusBadge status={overallStatus} size="sm" />
-                      <span className="text-[11px] text-zinc-400 flex items-center gap-1 font-mono">
-                        <Clock className="w-3 h-3" />
-                        {new Date(ticket.created_at).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
+                  <div className="flex items-center gap-3 sm:w-44 sm:shrink-0 sm:flex-col sm:items-start sm:gap-1.5">
+                    <span className="font-mono text-[17px] font-bold tracking-tight text-foreground">{ticket.ticket_code}</span>
+                    <StatusBadge status={overallStatus} size="sm" />
+                  </div>
 
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-[15px] font-semibold text-foreground">{ticket.client_name}</p>
                       {hasNotes && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-full">
-                          <StickyNote className="w-2.5 h-2.5" />
-                          Has Notes
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800 dark:bg-amber-950/50 dark:text-amber-200">
+                          <StickyNote className="h-3 w-3" aria-hidden="true" />
+                          Notes
                         </span>
                       )}
                     </div>
-
-                    <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
-                      {ticket.client_name}
+                    <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
+                      <span className="font-mono tabular-nums">
+                        {new Date(ticket.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                      {" · "}
+                      {fileCount} {fileCount === 1 ? "doc" : "docs"}, {totalCopies} {totalCopies === 1 ? "copy" : "copies"}
+                      {" · "}
+                      <span className="text-zinc-600 dark:text-zinc-300">{ticket.files.map((f) => f.file_name).join(", ")}</span>
                     </p>
-
-                    <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                      <span className="flex items-center gap-1">
-                        <Layers className="w-3 h-3 text-zinc-400" />
-                        {fileCount} {fileCount === 1 ? "doc" : "docs"} ({totalCopies}{" "}
-                        {totalCopies === 1 ? "copy" : "copies"})
-                      </span>
-                      <span>•</span>
-                      <span className="truncate max-w-xs text-zinc-600 dark:text-zinc-300">
-                        {ticket.files.map((f) => f.file_name).join(", ")}
-                      </span>
-                    </div>
                   </div>
 
-                  <div className="shrink-0 flex items-center gap-2">
-                    <Link
-                      href={`/staff/dashboard/${ticket.id}`}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-semibold text-xs transition-colors cursor-pointer"
-                    >
-                      <Printer className="w-3.5 h-3.5" />
-                      <span>{t("open_and_print")}</span>
-                      <ArrowRight className="w-3 h-3 ml-0.5" />
-                    </Link>
-                  </div>
-                </div>
+                  <Link
+                    href={`/staff/dashboard/${ticket.id}`}
+                    className="inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-zinc-300 bg-card px-4 text-[13px] font-semibold text-foreground transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground dark:border-zinc-700 dark:hover:text-primary-foreground"
+                  >
+                    <Printer className="h-4 w-4" aria-hidden="true" />
+                    {t("open_and_print")}
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                  </Link>
+                </li>
               );
             })}
-          </div>
+          </ul>
         )}
       </div>
     </div>

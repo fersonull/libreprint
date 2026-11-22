@@ -5,15 +5,9 @@ import { StatusBadge, PrintStatus } from "./status-badge";
 import { Ticket, PrintFile } from "@/lib/db";
 import { PaperTicket } from "./paper-ticket";
 import { useI18n } from "@/lib/i18n";
-import {
-  FileText,
-  Image as ImageIcon,
-  File,
-  CheckCircle,
-  RefreshCw,
-  Printer,
-  StickyNote,
-} from "lucide-react";
+import { RefreshCw, Printer, StickyNote } from "lucide-react";
+import { StatusPlates, type PlateStage } from "./illustrations";
+import { FileGlyph } from "./file-glyph";
 
 interface TicketTrackerProps {
   initialTicket: Ticket;
@@ -29,14 +23,7 @@ function formatFileSize(bytes: number): string {
 }
 
 function getFileIcon(fileName: string) {
-  const ext = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
-  if (ext === ".pdf") {
-    return <FileText className="w-5 h-5 text-zinc-900 dark:text-zinc-100 shrink-0" />;
-  }
-  if ([".png", ".jpg", ".jpeg"].includes(ext)) {
-    return <ImageIcon className="w-5 h-5 text-zinc-900 dark:text-zinc-100 shrink-0" />;
-  }
-  return <File className="w-5 h-5 text-zinc-700 dark:text-zinc-300 shrink-0" />;
+  return <FileGlyph fileName={fileName} />;
 }
 
 export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProps) {
@@ -121,11 +108,12 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
   const doneFiles = files.filter((f) => f.status === "done").length;
   const printingFiles = files.filter((f) => f.status === "printing").length;
   const allDone = totalFiles > 0 && doneFiles === totalFiles;
-  const percentComplete = totalFiles > 0 ? Math.round((doneFiles / totalFiles) * 100) : 0;
+
+  const stage: PlateStage = allDone ? "done" : printingFiles > 0 || doneFiles > 0 ? "printing" : "queued";
+  const headline = allDone ? t("all_ready") : printingFiles > 0 ? t("currently_printing") : t("queued_status");
 
   return (
-    <div className="space-y-6">
-      {/* 1. Official SVG Paper Ticket with Code Inside */}
+    <div className="space-y-5">
       <PaperTicket
         ticketCode={ticket.ticket_code}
         clientName={ticket.client_name}
@@ -133,127 +121,87 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
         totalFiles={totalFiles}
       />
 
-      {/* 2. Live Status & Progress Bar */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-xs">
-        <div className="flex items-center justify-between gap-3 mb-2">
-          <div className="flex items-center gap-2">
-            {allDone ? (
-              <span className="font-semibold text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4" />
-                {t("all_ready")}
-              </span>
-            ) : printingFiles > 0 ? (
-              <span className="font-semibold text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
-                <Printer className="w-4 h-4 animate-pulse-subtle" />
-                {t("currently_printing")}
-              </span>
-            ) : (
-              <span className="font-semibold text-xs text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse-subtle" />
-                {t("queued_status")}
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={refreshData}
-              disabled={isRefreshing}
-              className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1 rounded"
-              title="Refresh"
+      {/* Live status */}
+      <section
+        aria-labelledby="live-status"
+        className="rounded-2xl bg-card px-5 pt-5 pb-6 shadow-card sm:px-7"
+      >
+        <div className="mb-5 flex items-start justify-between gap-3">
+          <div>
+            <h2
+              id="live-status"
+              aria-live="polite"
+              className={`text-[15px] font-semibold ${allDone ? "text-emerald-700 dark:text-emerald-400" : "text-foreground"}`}
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
-            </button>
+              {headline}
+            </h2>
+            <p className="mt-0.5 font-mono text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
+              {doneFiles} / {totalFiles} · {t("progress")}
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={refreshData}
+            disabled={isRefreshing}
+            aria-label="Refresh"
+            title="Refresh"
+            className="-mr-2 -mt-1 inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} aria-hidden="true" />
+          </button>
         </div>
 
-        {/* Progress track */}
-        <div className="w-full h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden mb-2">
-          <div
-            className={`h-full transition-all duration-500 ${
-              allDone ? "bg-emerald-600 dark:bg-emerald-500" : "bg-zinc-900 dark:bg-zinc-100"
-            }`}
-            style={{ width: `${percentComplete}%` }}
-          />
-        </div>
+        <StatusPlates
+          stage={stage}
+          labels={{ queued: t("stage_queued"), printing: t("stage_printing"), done: t("stage_done") }}
+        />
+      </section>
 
-        <div className="flex items-center justify-between text-[11px] text-zinc-500">
-          <span>{t("progress")}</span>
-          <span className="font-mono tabular-nums font-semibold">
-            {doneFiles} / {totalFiles} ({percentComplete}%)
-          </span>
-        </div>
-      </div>
-
-      {/* 3. Document Items List with Specifications */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-xs">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3">
-          Documents ({totalFiles})
+      {/* Documents */}
+      <section
+        aria-labelledby="docs-heading"
+        className="rounded-2xl bg-card shadow-card"
+      >
+        <h2 id="docs-heading" className="px-5 pt-5 pb-2 text-[15px] font-semibold text-foreground sm:px-7">
+          {t("documents_heading")} <span className="font-mono text-xs font-normal text-zinc-400">({totalFiles})</span>
         </h2>
 
-        <div className="divide-y divide-zinc-100 dark:divide-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden bg-white dark:bg-zinc-950">
+        <ul className="divide-y divide-border">
           {files.map((file) => (
-            <div
-              key={file.id}
-              className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50 transition-colors"
-            >
-              <div className="flex items-start gap-3 min-w-0 flex-1">
-                <div className="mt-0.5">{getFileIcon(file.file_name)}</div>
-                <div className="min-w-0 flex-1 space-y-1">
-                  <p className="font-medium text-zinc-900 dark:text-zinc-100 text-sm truncate">
-                    {file.file_name}
+            <li key={file.id} className="flex items-start gap-3 px-5 py-4 sm:items-center sm:px-7">
+              {getFileIcon(file.file_name)}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-foreground">{file.file_name}</p>
+                <p className="mt-0.5 text-[13px] text-muted-foreground">
+                  {[
+                    file.paper_size || "A4",
+                    file.orientation === "landscape" ? t("landscape") : t("portrait"),
+                    file.copies === 1 ? t("copy_one") : t("copies_count").replace("{n}", String(file.copies)),
+                    file.color_mode === "color" ? t("color") : t("bw"),
+                    file.double_sided ? t("double_sided") : t("single_sided"),
+                  ].join(" · ")}
+                  <span className="font-mono text-xs"> · {formatFileSize(file.file_size)}</span>
+                </p>
+                {file.notes && (
+                  <p className="mt-1.5 inline-flex items-start gap-1.5 rounded-md bg-amber-50 px-2 py-1 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                    <StickyNote className="mt-px h-3 w-3 shrink-0" aria-hidden="true" />
+                    <span>{file.notes}</span>
                   </p>
-
-                  {/* Document specs pills */}
-                  <div className="flex items-center gap-2 text-[11px] text-zinc-500 flex-wrap">
-                    <span className="font-mono">{formatFileSize(file.file_size)}</span>
-                    <span>•</span>
-                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">
-                      {file.paper_size || "A4"}
-                    </span>
-                    <span>•</span>
-                    <span className="tabular-nums">
-                      {file.copies} {file.copies === 1 ? "copy" : "copies"}
-                    </span>
-                    <span>•</span>
-                    <span className="font-medium">
-                      {file.color_mode === "color" ? "Color" : "B&W"}
-                    </span>
-                    <span>•</span>
-                    <span>{file.double_sided ? "Back-to-Back" : "1-Sided"}</span>
-                  </div>
-
-                  {/* Notes if any */}
-                  {file.notes && (
-                    <p className="text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-900 px-2.5 py-1 rounded-md inline-flex items-center gap-1.5 mt-1">
-                      <StickyNote className="w-3 h-3 text-zinc-400 shrink-0" />
-                      <span>{file.notes}</span>
-                    </p>
-                  )}
-                </div>
+                )}
               </div>
-
-              <div className="shrink-0 pt-2 sm:pt-0">
-                <StatusBadge status={file.status as PrintStatus} size="md" />
-              </div>
-            </div>
+              <StatusBadge status={file.status as PrintStatus} size="md" className="shrink-0" />
+            </li>
           ))}
-        </div>
-      </div>
+        </ul>
+      </section>
 
-      {/* Pickup instructions */}
-      <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-xs text-zinc-700 dark:text-zinc-300 flex items-start gap-3">
-        <Printer className="w-4 h-4 text-zinc-600 dark:text-zinc-300 shrink-0 mt-0.5" />
-        <div className="space-y-0.5">
-          <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-            {t("how_to_collect_title")}
-          </p>
-          <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed">
-            {t("how_to_collect_body")}
-          </p>
-        </div>
-      </div>
+      <p className="flex items-start gap-2.5 px-1 text-[13px] leading-relaxed text-muted-foreground">
+        <Printer className="mt-0.5 h-4 w-4 shrink-0 text-zinc-400" aria-hidden="true" />
+        <span>
+          <span className="font-semibold text-zinc-800 dark:text-zinc-200">{t("how_to_collect_title")}. </span>
+          {t("how_to_collect_body")}
+        </span>
+      </p>
     </div>
   );
 }

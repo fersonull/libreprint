@@ -8,6 +8,7 @@ import { ThemeToggle, LanguageToggle } from "./controls";
 import { useI18n } from "@/lib/i18n";
 import {
   Inbox,
+  BarChart3,
   UploadCloud,
   LogOut,
   PanelLeftClose,
@@ -37,7 +38,7 @@ export function StaffSidebarLayout({ children }: StaffSidebarLayoutProps) {
     {
       title: "Analytics",
       href: "/staff/dashboard",
-      icon: <Inbox className="w-4 h-4 shrink-0" />,
+      icon: <BarChart3 className="w-4 h-4 shrink-0" />,
       active: pathname === "/staff/dashboard",
     },
     {
@@ -61,23 +62,23 @@ export function StaffSidebarLayout({ children }: StaffSidebarLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen flex bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+    <div className="min-h-screen flex text-foreground">
       {/* Mobile Backdrop */}
       {mobileOpen && (
         <div
           onClick={() => setMobileOpen(false)}
-          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          className="fixed inset-0 z-40 bg-zinc-950/50 md:hidden"
         />
       )}
 
       {/* shadcn Desktop & Mobile Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 transition-all duration-200 md:sticky md:top-0 md:bottom-auto md:h-dvh md:self-start ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-card border-r border-border transition-[width,transform] duration-200 md:sticky md:top-0 md:bottom-auto md:h-dvh md:self-start ${
           collapsed ? "w-16" : "w-64"
         } ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
         {/* Sidebar Header */}
-        <div className="h-14 border-b border-zinc-200 dark:border-zinc-800 px-4 flex items-center justify-between">
+        <div className="h-14 px-4 flex items-center justify-between">
           <Link href="/staff/dashboard" className="flex items-center gap-2 overflow-hidden">
             <LibrePrintLogo size={24} showText={!collapsed} />
           </Link>
@@ -85,7 +86,7 @@ export function StaffSidebarLayout({ children }: StaffSidebarLayoutProps) {
           <button
             type="button"
             onClick={() => setCollapsed(!collapsed)}
-            className="hidden md:inline-flex p-1.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="hidden md:inline-flex p-1.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 rounded-md hover:bg-accent transition-colors"
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? <PanelLeft className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
@@ -93,20 +94,18 @@ export function StaffSidebarLayout({ children }: StaffSidebarLayoutProps) {
         </div>
 
         {/* Navigation list */}
-        <div className="flex-1 px-3 py-4 space-y-1">
-          <div className={`px-2 mb-2 text-[10px] font-semibold tracking-wider uppercase text-zinc-400 ${collapsed ? "sr-only" : ""}`}>
-            Operations
-          </div>
+        <nav className="flex-1 px-3 py-3 space-y-0.5" aria-label="Staff">
 
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
+              aria-current={item.active ? "page" : undefined}
               onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+              className={`flex h-10 items-center gap-3 px-3 rounded-lg text-[13px] font-medium transition-colors ${
                 item.active
-                  ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-                  : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
+                  ? "bg-accent text-foreground"
+                  : "text-muted-foreground hover:text-foreground dark:hover:text-zinc-100 hover:bg-accent"
               }`}
               title={collapsed ? item.title : undefined}
             >
@@ -114,14 +113,13 @@ export function StaffSidebarLayout({ children }: StaffSidebarLayoutProps) {
               {!collapsed && <span>{item.title}</span>}
             </Link>
           ))}
-        </div>
+        </nav>
 
         {/* Sidebar Footer */}
-        <div className="border-t border-zinc-200 dark:border-zinc-800 p-3 space-y-2">
+        <div className="border-t border-border p-3 space-y-2">
           {!collapsed && (
-            <div className="flex items-center justify-between px-2 mb-2">
-              <span className="text-[11px] text-zinc-400">Settings</span>
-              <div className="flex items-center gap-1">
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-0.5">
                 <LanguageToggle />
                 <ThemeToggle />
               </div>
@@ -131,7 +129,7 @@ export function StaffSidebarLayout({ children }: StaffSidebarLayoutProps) {
           <button
             type="button"
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer ${
+            className={`w-full flex h-10 items-center gap-3 px-3 rounded-lg text-[13px] font-medium text-muted-foreground hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer ${
               collapsed ? "justify-center" : ""
             }`}
             title="Sign Out"
@@ -145,19 +143,18 @@ export function StaffSidebarLayout({ children }: StaffSidebarLayoutProps) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header / Breadcrumb Bar */}
-        <header className="h-14 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 flex items-center justify-between sticky top-0 z-30">
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
+        <header className="h-14 border-b border-border bg-card/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30">
+          <div className="flex min-w-0 items-center gap-2 text-[13px] text-zinc-500">
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-1.5 -ml-1 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md"
+              aria-label="Open menu"
+              className="md:hidden inline-flex h-9 w-9 -ml-2 items-center justify-center text-zinc-600 dark:text-zinc-300 hover:bg-accent rounded-lg"
             >
               <PanelLeft className="w-4 h-4" />
             </button>
 
-            <span className="font-semibold text-zinc-900 dark:text-zinc-100">libreprint</span>
-            <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Staff Portal</span>
+            <span className="font-semibold text-foreground">Staff</span>
             {pathname === "/staff/dashboard/print-desk" && <><ChevronRight className="w-3.5 h-3.5 text-zinc-400" /><span>Staff Print Desk</span></>}
             {pathname === "/staff/dashboard/transactions" && <><ChevronRight className="w-3.5 h-3.5 text-zinc-400" /><span>Transactions</span></>}
             {pathname.match(/^\/staff\/dashboard\/[^/]+$/) && !["/staff/dashboard/print-desk", "/staff/dashboard/transactions"].includes(pathname) && (
@@ -176,15 +173,18 @@ export function StaffSidebarLayout({ children }: StaffSidebarLayoutProps) {
               <ThemeToggle />
             </div>
 
-            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-              <span>0.0.0.0:3000</span>
-            </div>
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground" title="Queue refreshes automatically">
+              <span className="relative flex h-2 w-2" aria-hidden="true">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60 animate-pulse-subtle" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+              Live
+            </span>
           </div>
         </header>
 
         {/* Content Body */}
-        <main className="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto">{children}</main>
+        <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8 max-w-7xl w-full mx-auto">{children}</main>
       </div>
     </div>
   );

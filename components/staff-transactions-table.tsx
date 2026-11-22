@@ -75,11 +75,11 @@ export function StaffTransactionsTable() {
   return (
     <section className="space-y-5">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Search, filter, and export submitted print transactions.</p>
+        <h1 className="text-[1.75rem] leading-tight font-semibold tracking-tight text-foreground">Transactions</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Search, filter, and export submitted print transactions.</p>
       </header>
 
-      <div className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="flex flex-col gap-3 rounded-2xl bg-card p-3 shadow-card">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Tabs value={status} onValueChange={(value) => setStatus(value as StatusFilter)}>
             <TabsList aria-label="Filter transactions by status" className="h-auto w-full flex-wrap justify-start sm:w-fit">
@@ -100,20 +100,20 @@ export function StaffTransactionsTable() {
                 <SelectItem value="files">Most documents</SelectItem>
               </SelectContent>
             </Select>
-            <button type="button" onClick={exportCsv} className="inline-flex min-h-10 items-center gap-2 rounded-md bg-zinc-900 px-3 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"><Download className="size-4" />Export CSV</button>
+            <button type="button" onClick={exportCsv} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-zinc-300 bg-card px-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"><Download className="size-4" />Export CSV</button>
           </div>
         </div>
         <label className="relative block">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-          <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search ticket or client" className="h-10 w-full rounded-md border border-zinc-300 bg-white pl-9 pr-3 text-sm dark:border-zinc-700 dark:bg-zinc-950" />
+          <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search ticket or client" className="h-10 w-full rounded-lg border border-zinc-300 bg-card pl-9 pr-3 text-sm placeholder:text-zinc-400 hover:border-zinc-400 focus-visible:border-ring focus:outline-none focus:ring-3 focus-visible:ring-ring/40 dark:border-zinc-700" />
         </label>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="overflow-x-auto rounded-2xl bg-card shadow-card">
         <table className="w-full min-w-[700px] text-left text-sm">
-          <thead className="border-b border-zinc-200 text-xs text-zinc-500 dark:border-zinc-800"><tr><th className="px-4 py-3 font-medium">Ticket</th><th className="px-4 py-3 font-medium">Client</th><th className="px-4 py-3 font-medium">Submitted</th><th className="px-4 py-3 font-medium">Documents</th><th className="px-4 py-3 font-medium">Status</th></tr></thead>
-          <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-            {loading ? <tr><td colSpan={5} className="p-8 text-center text-zinc-500">Loading transactions…</td></tr> : visibleTransactions.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-zinc-500">No transactions found.</td></tr> : visibleTransactions.map((transaction) => <tr key={transaction.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50"><td className="px-4 py-3 font-mono font-semibold"><Link className="underline-offset-4 hover:underline" href={`/staff/dashboard/${transaction.id}`}>{transaction.ticket_code}</Link></td><td className="px-4 py-3">{transaction.client_name}</td><td className="px-4 py-3 text-zinc-500">{new Date(transaction.created_at).toLocaleString()}</td><td className="px-4 py-3">{transaction.files.length}</td><td className="px-4 py-3"><StatusBadge status={transactionStatus(transaction.files)} size="sm" /></td></tr>)}
+          <thead className="border-b border-zinc-100 bg-zinc-50/70 text-xs text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-400"><tr><th className="px-4 py-3 font-medium">Ticket</th><th className="px-4 py-3 font-medium">Client</th><th className="px-4 py-3 font-medium">Submitted</th><th className="px-4 py-3 font-medium">Documents</th><th className="px-4 py-3 font-medium">Status</th></tr></thead>
+          <tbody className="divide-y divide-border">
+            {loading ? <tr><td colSpan={5} className="p-8 text-center text-zinc-500">Loading transactions…</td></tr> : visibleTransactions.length === 0 ? <tr><td colSpan={5} className="p-8 text-center text-zinc-500">No transactions found.</td></tr> : visibleTransactions.map((transaction) => <tr key={transaction.id} className="hover:bg-accent/50"><td className="px-4 py-3 font-mono font-semibold"><Link className="text-foreground underline-offset-4 hover:underline" href={`/staff/dashboard/${transaction.id}`}>{transaction.ticket_code}</Link></td><td className="px-4 py-3">{transaction.client_name}</td><td className="px-4 py-3 font-mono text-xs text-zinc-500 tabular-nums dark:text-zinc-400">{new Date(transaction.created_at).toLocaleString()}</td><td className="px-4 py-3 font-mono tabular-nums">{transaction.files.length}</td><td className="px-4 py-3"><StatusBadge status={transactionStatus(transaction.files)} size="sm" /></td></tr>)}
           </tbody>
         </table>
       </div>

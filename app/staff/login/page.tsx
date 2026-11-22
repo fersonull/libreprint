@@ -3,9 +3,9 @@
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
-import { LibrePrintLogo } from "@/components/logo";
+import { CounterBell } from "@/components/illustrations";
 import { useI18n } from "@/lib/i18n";
-import { Lock, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
@@ -52,102 +52,87 @@ function LoginForm() {
   };
 
   return (
-    <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 sm:p-8 shadow-xs">
-      <div className="text-center mb-6">
-        <div className="flex justify-center mb-3">
-          <LibrePrintLogo size={32} showText={false} />
-        </div>
-        <h1 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+    <div className="w-full max-w-sm">
+      <div className="text-center">
+        <CounterBell className="mx-auto h-24 w-auto" />
+        <h1 className="mt-5 text-[1.75rem] leading-tight font-semibold tracking-tight text-foreground">
           {t("sign_in_title")}
         </h1>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-          {t("sign_in_subtitle")}
-        </p>
+        <p className="mx-auto mt-2 max-w-[34ch] text-sm leading-relaxed text-muted-foreground">{t("sign_in_subtitle")}</p>
       </div>
 
-      {errorMessage && (
-        <div
-          role="alert"
-          className="mb-4 flex items-center gap-2.5 p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs"
-        >
-          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-          <span>{errorMessage}</span>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label
-            htmlFor="staffPassword"
-            className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1"
+      <form
+        onSubmit={handleSubmit}
+        className="mt-7 rounded-2xl bg-card p-5 shadow-card sm:p-6"
+      >
+        {errorMessage && (
+          <div
+            role="alert"
+            className="mb-4 flex items-start gap-2.5 rounded-lg bg-rose-50 px-3 py-2.5 text-sm text-rose-900 dark:bg-rose-950/40 dark:text-rose-100"
           >
-            {t("password_label")}
-          </label>
-          <div className="relative">
-            <input
-              id="staffPassword"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••••••"
-              required
-              autoFocus
-              className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-base text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 transition-all"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-              tabIndex={-1}
-            >
-              {showPassword ? (
-                <EyeOff className="w-4 h-4" />
-              ) : (
-                <Eye className="w-4 h-4" />
-              )}
-            </button>
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" aria-hidden="true" />
+            <span>{errorMessage}</span>
           </div>
+        )}
+
+        <label htmlFor="staffPassword" className="mb-1.5 block text-sm font-semibold text-foreground">
+          {t("password_label")}
+        </label>
+        <div className="relative">
+          <input
+            id="staffPassword"
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoFocus
+            autoComplete="current-password"
+            className="h-12 w-full rounded-xl border border-zinc-300 bg-card px-4 pr-12 text-base text-foreground transition-colors hover:border-zinc-400 focus-visible:border-ring focus:outline-none focus:ring-3 focus-visible:ring-ring/40 dark:border-zinc-700"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            className="absolute top-1/2 right-1.5 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+          >
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
         </div>
 
         <button
           type="submit"
           disabled={isLoading || !password}
-          className="w-full py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-medium text-xs shadow-xs disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all cursor-pointer"
+          className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 text-[15px] font-semibold text-primary-foreground transition-colors hover:bg-primary/85 active:bg-primary/75 disabled:cursor-not-allowed disabled:bg-zinc-200 disabled:text-zinc-500 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500 cursor-pointer"
         >
           {isLoading ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Verifying...</span>
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              <span>Verifying…</span>
             </>
           ) : (
-            <>
-              <Lock className="w-4 h-4" />
-              <span>{t("sign_in_btn")}</span>
-            </>
+            <span>{t("sign_in_btn")}</span>
           )}
         </button>
       </form>
 
-      <div className="mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800 text-center">
-        <p className="text-[11px] text-zinc-400">
-          Default password: <code className="text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-1 py-0.5 rounded">admin</code>
-        </p>
-      </div>
+      <p className="mt-5 text-center text-xs text-zinc-500">
+        Default password: <code className="rounded bg-zinc-200/70 px-1.5 py-0.5 font-mono text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200">admin</code>
+      </p>
     </div>
   );
 }
 
 export default function StaffLoginPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+    <div className="flex min-h-screen flex-col text-foreground">
       <Navbar currentPath="/staff/login" isStaff />
 
-      <main className="flex-1 flex items-center justify-center p-4">
+      <main className="flex flex-1 items-start justify-center px-4 pt-10 pb-16 sm:items-center sm:pt-0">
         <Suspense
           fallback={
-            <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8 shadow-xs text-center text-xs text-zinc-400">
-              <Loader2 className="w-5 h-5 animate-spin mx-auto text-zinc-500 mb-2" />
-              <span>Loading...</span>
+            <div className="py-16 text-center text-sm text-zinc-500">
+              <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" aria-hidden="true" />
+              Loading…
             </div>
           }
         >

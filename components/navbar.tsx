@@ -12,51 +12,51 @@ interface NavbarProps {
   isStaff?: boolean;
 }
 
+function NavLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={`relative inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium transition-colors ${
+        active
+          ? "text-foreground bg-accent"
+          : "text-muted-foreground hover:text-foreground dark:hover:text-zinc-100 hover:bg-accent"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
+
 export function Navbar({ currentPath = "/upload", isStaff = false }: NavbarProps) {
   const { t } = useI18n();
 
   return (
-    <header className="w-full bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-40">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-        {/* Brand identity with bespoke logo */}
-        <Link href="/upload" className="flex items-center gap-2 group">
+    <header className="sticky top-0 z-40 w-full border-b border-zinc-200/80 bg-card/90 backdrop-blur-md dark:border-zinc-800">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+        <Link href="/upload" className="flex items-center gap-2 rounded-md">
           <LibrePrintLogo size={26} />
         </Link>
 
-        {/* Navigation & Controls */}
-        <div className="flex items-center gap-2 sm:gap-3 text-sm">
-          <Link
-            href="/upload"
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              currentPath === "/upload"
-                ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50"
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-900"
-            }`}
-          >
-            <UploadCloud className="w-3.5 h-3.5 shrink-0" />
+        <nav className="flex items-center gap-1 sm:gap-1.5" aria-label="Main">
+          <NavLink href="/upload" active={currentPath === "/upload"}>
+            <UploadCloud className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span className="hidden sm:inline">{t("upload_nav")}</span>
-          </Link>
+            <span className="sr-only sm:hidden">{t("upload_nav")}</span>
+          </NavLink>
 
-          {isStaff && <Link
-            href="/staff/dashboard"
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              currentPath.startsWith("/staff")
-                ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold"
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-900"
-            }`}
-          >
-            <Shield className="w-3.5 h-3.5 shrink-0" />
-            <span>{t("staff_nav")}</span>
-          </Link>}
+          {isStaff && (
+            <NavLink href="/staff/dashboard" active={currentPath.startsWith("/staff")}>
+              <Shield className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>{t("staff_nav")}</span>
+            </NavLink>
+          )}
 
-          <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800 mx-1" />
+          <span className="mx-1.5 h-5 w-px bg-zinc-200 dark:bg-zinc-800" aria-hidden="true" />
 
-          {/* Language Toggle (Accessibility feature: Filipino friendly) */}
           <LanguageToggle />
-
-          {/* Dark / Light Mode Toggle */}
           <ThemeToggle />
-        </div>
+        </nav>
       </div>
     </header>
   );

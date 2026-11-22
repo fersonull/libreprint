@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { UploadForm } from "@/components/upload-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useI18n } from "@/lib/i18n";
 
 export default function UploadPage() {
@@ -12,30 +15,35 @@ export default function UploadPage() {
   const [ticketCode, setTicketCode] = useState("");
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+    <div className="flex min-h-screen flex-col">
       <Navbar currentPath="/upload" isStaff={false} />
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-8 sm:py-12">
-        <div className="mb-6 sm:mb-8 text-center sm:text-left">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-8 pb-12 sm:px-6 sm:pt-12 lg:max-w-6xl">
+        <header className="mb-6 flex flex-col gap-2 sm:mb-8">
+          <h1 className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl">
             {t("upload_title")}
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 max-w-xl">
-            {t("upload_subtitle")}
-          </p>
-        </div>
+          <p className="max-w-[60ch] text-pretty text-muted-foreground">{t("upload_subtitle")}</p>
+        </header>
 
         <UploadForm />
 
-        <section className="mt-6 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{t("find_ticket_title")}</h2>
-          <form className="mt-3 flex flex-col gap-2 sm:flex-row" onSubmit={(event) => {
-            event.preventDefault();
-            const code = ticketCode.trim();
-            if (code) router.push(`/ticket/${encodeURIComponent(code)}`);
-          }}>
-            <input
-              type="text"
+        <section
+          className="mt-8 flex flex-col gap-3 rounded-xl border border-dashed px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+          aria-labelledby="find-ticket"
+        >
+          <h2 id="find-ticket" className="text-sm font-medium text-foreground">
+            {t("find_ticket_title")}
+          </h2>
+          <form
+            className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const code = ticketCode.trim();
+              if (code) router.push(`/ticket/${encodeURIComponent(code)}`);
+            }}
+          >
+            <Input
               value={ticketCode}
               onChange={(event) => setTicketCode(event.target.value)}
               placeholder={t("ticket_code_placeholder")}
@@ -43,15 +51,18 @@ export default function UploadPage() {
               autoCapitalize="characters"
               autoComplete="off"
               required
-              className="h-11 min-w-0 flex-1 rounded-lg border border-zinc-300 bg-white px-3 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-zinc-100"
+              className="h-11 font-mono tracking-wide uppercase placeholder:font-sans placeholder:tracking-normal placeholder:normal-case sm:h-9 sm:w-72"
             />
-            <button type="submit" className="h-11 rounded-lg bg-zinc-900 px-4 text-sm font-medium text-white hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300">{t("find_ticket_button")}</button>
+            <Button type="submit" variant="outline" className="h-11 sm:h-9">
+              {t("find_ticket_button")}
+              <ArrowRight data-icon="inline-end" aria-hidden="true" />
+            </Button>
           </form>
         </section>
       </main>
 
-      <footer className="py-6 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-center text-xs text-zinc-400">
-        <p>libreprint • Simple local print management</p>
+      <footer className="py-6 text-center text-xs text-muted-foreground">
+        libreprint · {t("brand_tagline")}
       </footer>
     </div>
   );

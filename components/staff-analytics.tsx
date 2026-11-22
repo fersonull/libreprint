@@ -25,34 +25,44 @@ export function StaffAnalytics() {
   }, [router]);
 
   const metrics = [
-    { label: "Queued Documents", value: stats?.queuedFiles, detail: "waiting", color: "text-amber-600 dark:text-amber-400" },
-    { label: "Currently Printing", value: stats?.printingFiles, detail: "active", color: "text-blue-600 dark:text-blue-400" },
-    { label: "Completed Prints", value: stats?.doneFiles, detail: "finished", color: "text-emerald-600 dark:text-emerald-400" },
-    { label: "Total Tickets", value: stats?.totalTickets, detail: "total", color: "text-zinc-900 dark:text-zinc-100" },
-    { label: "Total Documents", value: stats?.totalFiles, detail: "files", color: "text-zinc-900 dark:text-zinc-100" },
-    { label: "Cancelled", value: stats?.cancelledFiles, detail: "cancelled", color: "text-rose-600 dark:text-rose-400" },
+    { label: "Queued", value: stats?.queuedFiles, dot: "bg-amber-500" },
+    { label: "Printing", value: stats?.printingFiles, dot: "bg-primary" },
+    { label: "Completed", value: stats?.doneFiles, dot: "bg-emerald-600 dark:bg-emerald-400" },
+    { label: "Cancelled", value: stats?.cancelledFiles, dot: "bg-rose-500" },
+    { label: "Tickets", value: stats?.totalTickets, dot: "bg-zinc-400" },
+    { label: "Documents", value: stats?.totalFiles, dot: "bg-zinc-400" },
   ];
 
   return (
     <section className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard analytics</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Transaction volume over the last seven days.</p>
+        <h1 className="text-[1.75rem] leading-tight font-semibold tracking-tight text-foreground">Dashboard</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Documents by status, and tickets over the last seven days.</p>
       </header>
-      <section aria-label="Queue totals" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {metrics.map(({ label, value, detail, color }) => <article key={label} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-xs dark:border-zinc-800 dark:bg-zinc-900"><span className="mb-1 block text-[11px] font-medium text-zinc-500">{label}</span><div className="flex items-baseline gap-2"><span className={`text-2xl font-bold tabular-nums ${color}`}>{value ?? "—"}</span><span className="text-xs text-zinc-400">{detail}</span></div></article>)}
-      </section>
-      <section aria-labelledby="transaction-chart-title" className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-        <h2 id="transaction-chart-title" className="font-semibold">Daily transactions</h2>
-        <p className="mt-1 text-sm text-zinc-500">Tickets submitted per day</p>
-        <div className="mt-4">
+
+      <dl aria-label="Queue totals" className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-border shadow-card sm:grid-cols-3 lg:grid-cols-6">
+        {metrics.map(({ label, value, dot }) => (
+          <div key={label} className="bg-card px-4 py-3.5">
+            <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <span className={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden="true" />
+              {label}
+            </dt>
+            <dd className="mt-1 font-mono text-2xl font-semibold text-foreground tabular-nums">{value ?? "—"}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <section aria-labelledby="transaction-chart-title" className="rounded-2xl bg-card p-5 shadow-card sm:p-6">
+        <h2 id="transaction-chart-title" className="text-[15px] font-semibold text-foreground">Tickets per day</h2>
+        <p className="mt-0.5 text-[13px] text-muted-foreground">Last seven days</p>
+        <div className="mt-5 text-muted-foreground">
           <ChartContainer>
             <BarChart data={daily} accessibilityLayer margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--analytics-grid)" />
-              <XAxis dataKey="label" axisLine={false} tickLine={false} tickMargin={8} />
-              <YAxis allowDecimals={false} axisLine={false} tickLine={false} />
-              <Tooltip content={<ChartTooltipContent />} cursor={{ fill: "rgba(113, 113, 122, .08)" }} />
-              <Bar dataKey="transactions" name="Transactions" fill="var(--analytics-bar)" radius={[4, 4, 0, 0]} maxBarSize={42} />
+              <CartesianGrid vertical={false} stroke="var(--analytics-grid)" />
+              <XAxis dataKey="label" axisLine={false} tickLine={false} tickMargin={8} tick={{ fill: "currentColor" }} />
+              <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: "currentColor" }} />
+              <Tooltip content={<ChartTooltipContent />} cursor={{ fill: "var(--muted)" }} />
+              <Bar dataKey="transactions" name="Tickets" fill="var(--analytics-bar)" radius={[4, 4, 0, 0]} maxBarSize={42} />
             </BarChart>
           </ChartContainer>
         </div>
