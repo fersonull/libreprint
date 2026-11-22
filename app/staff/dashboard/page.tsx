@@ -1,10 +1,6 @@
-import { StaffSidebarLayout } from "@/components/staff-sidebar";
-import { StaffAnalytics } from "@/components/staff-analytics";
+import { getOverview } from "@/features/staff/queries";
+import { Overview } from "@/features/staff/dashboard/overview";
 
-export default function StaffDashboardPage() {
-  return (
-    <StaffSidebarLayout>
-      <StaffAnalytics />
-    </StaffSidebarLayout>
-  );
+export default function StaffOverviewPage() {
+  return <Overview data={getOverview()} />;
 }

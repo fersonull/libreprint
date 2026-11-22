@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/navbar";
-import { TicketTracker } from "@/components/ticket-tracker";
-import { TicketNotFound, SubmitAnotherLink } from "@/components/ticket-not-found";
+import { TicketTracker } from "@/features/ticket/ticket-tracker";
+import { TicketNotFound, SubmitAnotherLink } from "@/features/ticket/ticket-not-found";
 import { getDb, Ticket, PrintFile } from "@/lib/db";
 
 export default async function TicketPage({

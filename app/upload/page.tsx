@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/navbar";
-import { UploadForm } from "@/components/upload-form";
+import { UploadForm } from "@/features/upload/upload-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/lib/i18n";

@@ -43,7 +43,7 @@
 
   /* page ground: the preset background */
   --frame: var(--background);
-  --analytics-bar: var(--chart-1);
+  --analytics-bar: var(--primary);
   --analytics-grid: var(--border);
   /* match the preset Card: hairline ring + shadow-xs */
   --shadow-card: 0 0 0 1px oklch(0.145 0 0 / 0.1), 0 1px 2px 0 oklch(0 0 0 / 0.05);
@@ -65,6 +65,7 @@
 }
 
 .dark {
+  --analytics-bar: var(--chart-1);
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);

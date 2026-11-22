@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field";
-import type { PaperSize, Orientation, UploadFileItem } from "@/components/upload-form";
+import type { PaperSize, Orientation, UploadFileItem } from "./upload-form";
 import { SegmentedToggle } from "./segmented-toggle";
 import { PAPER_SPECS } from "./sheet-preview";
 

@@ -13,6 +13,8 @@ const SHADE = "var(--ill-shade)";
 const LINE = "var(--ill-line)";
 const ACCENT = "var(--ill-accent)";
 const ACCENT_SOFT = "var(--ill-accent-soft)";
+// inactive plates are outline drawings, but still opaque so shapes never show through each other
+const OFF = "var(--card)";
 
 type IllProps = { className?: string };
 
@@ -67,16 +69,16 @@ function PlateQueued({ on }: { on: boolean }) {
   return (
     <g>
       {/* tray */}
-      <path d="M14 58 L22 44 H74 L82 58 Z" fill={on ? BODY : "none"} stroke={INK} strokeWidth="2" strokeLinejoin="round" />
+      <path d="M14 58 L22 44 H74 L82 58 Z" fill={on ? BODY : OFF} stroke={INK} strokeWidth="2" strokeLinejoin="round" />
       {/* sheets waiting */}
-      <rect x="28" y="18" width="40" height="34" rx="2" fill={on ? PAPER : "none"} stroke={INK} strokeWidth="2" transform="rotate(-6 48 35)" />
-      <rect x="28" y="16" width="40" height="34" rx="2" fill={on ? PAPER : "none"} stroke={INK} strokeWidth="2" />
+      <rect x="28" y="18" width="40" height="34" rx="2" fill={on ? PAPER : OFF} stroke={INK} strokeWidth="2" transform="rotate(-6 48 35)" />
+      <rect x="28" y="16" width="40" height="34" rx="2" fill={on ? PAPER : OFF} stroke={INK} strokeWidth="2" />
       <g strokeLinecap="round" strokeWidth="2">
         <line x1="35" y1="25" x2="61" y2="25" stroke={on ? ACCENT : LINE} strokeWidth={on ? 3 : 2} />
         <line x1="35" y1="31" x2="58" y2="31" stroke={LINE} />
         <line x1="35" y1="37" x2="52" y2="37" stroke={LINE} />
       </g>
-      <rect x="14" y="58" width="68" height="6" rx="3" fill={on ? INK : "none"} stroke={INK} strokeWidth="2" />
+      <rect x="14" y="58" width="68" height="6" rx="3" fill={on ? INK : OFF} stroke={INK} strokeWidth="2" />
     </g>
   );
 }
@@ -84,16 +86,17 @@ function PlateQueued({ on }: { on: boolean }) {
 function PlatePrinting({ on }: { on: boolean }) {
   return (
     <g>
-      <rect x="12" y="14" width="72" height="30" rx="7" fill={on ? BODY : "none"} stroke={INK} strokeWidth="2" />
-      <circle cx="24" cy="26" r="3" fill={on ? ACCENT : "none"} stroke={on ? "none" : INK} strokeWidth="1.5" />
+      {/* sheet first, so the printer body hides it until it leaves the slot */}
       <g className={on ? "animate-sheet-feed" : ""}>
-        <rect x="26" y="36" width="44" height="30" rx="2" fill={on ? PAPER : "none"} stroke={INK} strokeWidth="2" />
+        <rect x="26" y="36" width="44" height="30" rx="2" fill={on ? PAPER : OFF} stroke={INK} strokeWidth="2" />
         <g strokeLinecap="round" strokeWidth="2">
           <line x1="33" y1="48" x2="62" y2="48" stroke={on ? ACCENT : LINE} strokeWidth={on ? 3 : 2} />
           <line x1="33" y1="54" x2="57" y2="54" stroke={LINE} />
           <line x1="33" y1="60" x2="50" y2="60" stroke={LINE} />
         </g>
       </g>
+      <rect x="12" y="14" width="72" height="30" rx="7" fill={on ? BODY : OFF} stroke={INK} strokeWidth="2" />
+      <circle cx="24" cy="26" r="3" fill={on ? ACCENT : OFF} stroke={on ? "none" : INK} strokeWidth="1.5" />
       <rect x="20" y="36" width="56" height="5" rx="2.5" fill={INK} />
     </g>
   );
@@ -102,9 +105,9 @@ function PlatePrinting({ on }: { on: boolean }) {
 function PlateDone({ on }: { on: boolean }) {
   return (
     <g>
-      <rect x="22" y="40" width="48" height="22" rx="2" fill={on ? PAPER : "none"} stroke={INK} strokeWidth="2" />
-      <rect x="25" y="32" width="48" height="22" rx="2" fill={on ? PAPER : "none"} stroke={INK} strokeWidth="2" />
-      <rect x="28" y="16" width="48" height="30" rx="2" fill={on ? PAPER : "none"} stroke={INK} strokeWidth="2" />
+      <rect x="22" y="40" width="48" height="22" rx="2" fill={on ? PAPER : OFF} stroke={INK} strokeWidth="2" />
+      <rect x="25" y="32" width="48" height="22" rx="2" fill={on ? PAPER : OFF} stroke={INK} strokeWidth="2" />
+      <rect x="28" y="16" width="48" height="30" rx="2" fill={on ? PAPER : OFF} stroke={INK} strokeWidth="2" />
       <g strokeLinecap="round" strokeWidth="2">
         <line x1="35" y1="25" x2="62" y2="25" stroke={on ? ACCENT : LINE} strokeWidth={on ? 3 : 2} />
         <line x1="35" y1="31" x2="58" y2="31" stroke={LINE} />

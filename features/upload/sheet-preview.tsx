@@ -1,6 +1,6 @@
 "use client";
 
-import type { PaperSize, Orientation } from "@/components/upload-form";
+import type { PaperSize, Orientation } from "./upload-form";
 import { cn } from "@/lib/utils";
 
 /** Real sheet sizes in inches (portrait) and mm, for the drawing and caption. */

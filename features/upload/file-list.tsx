@@ -5,8 +5,8 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
-import { FileGlyph } from "@/components/file-glyph";
-import type { UploadFileItem } from "@/components/upload-form";
+import { FileGlyph, FileName } from "@/components/file-glyph";
+import type { UploadFileItem } from "./upload-form";
 import { PAPER_SPECS } from "./sheet-preview";
 
 export function formatFileSize(bytes: number): string {
@@ -15,23 +15,6 @@ export function formatFileSize(bytes: number): string {
   const sizes = ["B", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
-}
-
-/** Splits a name so the stem can truncate while the extension stays visible. */
-function splitName(name: string) {
-  const dot = name.lastIndexOf(".");
-  if (dot <= 0) return { stem: name, ext: "" };
-  return { stem: name.slice(0, dot), ext: name.slice(dot) };
-}
-
-export function FileName({ name, className }: { name: string; className?: string }) {
-  const { stem, ext } = splitName(name);
-  return (
-    <span className={cn("flex min-w-0", className)} title={name}>
-      <span className="truncate">{stem}</span>
-      <span className="shrink-0">{ext}</span>
-    </span>
-  );
 }
 
 export function useSettingsSummary() {

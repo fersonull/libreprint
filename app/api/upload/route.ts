@@ -3,7 +3,7 @@ import { getDb } from "@/lib/db";
 import { generateTicketCode } from "@/lib/ticket-code";
 import { saveFile } from "@/lib/storage";
 import { emitStatusUpdate } from "@/lib/emitter";
-import { MAX_FILE_SIZE_BYTES, MAX_TOTAL_UPLOAD_BYTES, MAX_UPLOAD_REQUEST_BYTES } from "@/lib/upload-limits";
+import { MAX_FILE_SIZE_BYTES, MAX_TOTAL_UPLOAD_BYTES, MAX_UPLOAD_REQUEST_BYTES } from "@/features/upload/limits";
 import crypto from "crypto";
 
 const ALLOWED_EXTENSIONS = new Set([".pdf", ".docx", ".doc", ".png", ".jpg", ".jpeg"]);

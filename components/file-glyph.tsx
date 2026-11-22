@@ -23,3 +23,15 @@ export function FileGlyph({ fileName, className = "" }: { fileName: string; clas
     </span>
   );
 }
+
+/** A file name whose stem truncates while the extension stays visible. */
+export function FileName({ name, className = "" }: { name: string; className?: string }) {
+  const dot = name.lastIndexOf(".");
+  const [stem, ext] = dot > 0 ? [name.slice(0, dot), name.slice(dot)] : [name, ""];
+  return (
+    <span className={`flex min-w-0 ${className}`} title={name}>
+      <span className="truncate">{stem}</span>
+      <span className="shrink-0">{ext}</span>
+    </span>
+  );
+}
