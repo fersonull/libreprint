@@ -29,7 +29,7 @@ export function BackLink({ href, children }: { href: string; children: React.Rea
   return (
     <Link
       href={href}
-      className="-ml-2 inline-flex h-9 items-center gap-1.5 rounded-lg px-2 text-[13px] font-medium text-zinc-500 transition-colors hover:bg-zinc-200/60 hover:text-foreground dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+      className="-ml-2 inline-flex h-11 items-center gap-1.5 rounded-lg px-2 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
     >
       <ArrowLeft className="h-4 w-4" aria-hidden="true" />
       {children}

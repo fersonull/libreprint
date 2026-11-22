@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/navbar";
 import { TicketTracker } from "@/features/ticket/ticket-tracker";
 import { TicketNotFound, SubmitAnotherLink } from "@/features/ticket/ticket-not-found";
-import { getDb, Ticket, PrintFile } from "@/lib/db";
+import { getTicketWithFiles } from "@/features/staff/queries";
 
 export default async function TicketPage({
   params,
@@ -9,13 +9,9 @@ export default async function TicketPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const db = getDb();
+  const found = getTicketWithFiles(id);
 
-  const ticket = db
-    .prepare("SELECT * FROM tickets WHERE id = ? OR UPPER(ticket_code) = UPPER(?)")
-    .get(id, id) as Ticket | undefined;
-
-  if (!ticket) {
+  if (!found) {
     return (
       <div className="flex min-h-screen flex-col text-foreground">
         <Navbar currentPath="/ticket" />
@@ -26,9 +22,7 @@ export default async function TicketPage({
     );
   }
 
-  const files = db
-    .prepare("SELECT * FROM print_files WHERE ticket_id = ? ORDER BY created_at ASC")
-    .all(ticket.id) as PrintFile[];
+  const { ticket, files } = found;
 
   return (
     <div className="flex min-h-screen flex-col text-foreground">

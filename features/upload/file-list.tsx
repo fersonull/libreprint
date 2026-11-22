@@ -2,20 +2,12 @@
 
 import type { ReactNode } from "react";
 import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatFileSize } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { FileGlyph, FileName } from "@/components/file-glyph";
 import type { UploadFileItem } from "./upload-form";
 import { PAPER_SPECS } from "./sheet-preview";
-
-export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return "0 B";
-  const k = 1024;
-  const sizes = ["B", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
-}
 
 export function useSettingsSummary() {
   const { t } = useI18n();

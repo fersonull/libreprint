@@ -6,9 +6,11 @@ interface StatusBadgeProps {
   status: PrintStatus | string;
   size?: "sm" | "md" | "lg";
   className?: string;
+  /** Overrides the English label, e.g. with a translation. */
+  label?: string;
 }
 
-export function StatusBadge({ status, size = "md", className = "" }: StatusBadgeProps) {
+export function StatusBadge({ status, size = "md", className = "", label }: StatusBadgeProps) {
   const normStatus = (status || "queued").toLowerCase() as PrintStatus;
 
   const config = {
@@ -54,8 +56,6 @@ export function StatusBadge({ status, size = "md", className = "" }: StatusBadge
   return (
     <span
       className={`inline-flex items-center rounded-full font-medium ${config.tone} ${sizeClasses} ${className}`}
-      role="status"
-      aria-label={`Status: ${config.label}`}
     >
       <span
         className={`rounded-full shrink-0 ${config.dot} ${dotSize} ${
@@ -63,7 +63,7 @@ export function StatusBadge({ status, size = "md", className = "" }: StatusBadge
         }`}
         aria-hidden="true"
       />
-      <span>{config.label}</span>
+      <span>{label ?? config.label}</span>
     </span>
   );
 }

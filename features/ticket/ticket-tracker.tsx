@@ -7,24 +7,13 @@ import { PaperTicket } from "./paper-ticket";
 import { useI18n } from "@/lib/i18n";
 import { RefreshCw, Printer, StickyNote } from "lucide-react";
 import { StatusPlates, type PlateStage } from "@/components/illustrations";
-import { FileGlyph } from "@/components/file-glyph";
+import { FileGlyph, FileName } from "@/components/file-glyph";
+import { formatFileSize } from "@/lib/utils";
 import { ticketProgress } from "./progress";
 
 interface TicketTrackerProps {
   initialTicket: Ticket;
   initialFiles: PrintFile[];
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return "0 B";
-  const k = 1024;
-  const sizes = ["B", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
-}
-
-function getFileIcon(fileName: string) {
-  return <FileGlyph fileName={fileName} />;
 }
 
 export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProps) {
@@ -61,6 +50,8 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
 
       const es = new EventSource(`/api/tickets/${ticket.id}/stream`);
       eventSourceRef.current = es;
+      // Catch up on anything missed while disconnected.
+      es.onopen = () => refreshData();
 
       es.onmessage = (event) => {
         try {
@@ -92,9 +83,14 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
 
     connectSSE();
 
+    // Live updates carry changes while connected; poll only as a fallback, and never in a hidden tab.
     const pollInterval = setInterval(() => {
-      refreshData();
+      if (document.visibilityState === "visible" && eventSourceRef.current?.readyState !== EventSource.OPEN) refreshData();
     }, 6000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refreshData();
+    };
+    document.addEventListener("visibilitychange", onVisible);
 
     return () => {
       if (eventSourceRef.current) {
@@ -102,19 +98,17 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
       }
       clearTimeout(reconnectTimeout);
       clearInterval(pollInterval);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [ticket.id, refreshData]);
 
   const { total: totalFiles, done: doneFiles, printing: printingFiles, allDone, allCancelled } = ticketProgress(files);
 
   const stage: PlateStage = allDone ? "done" : printingFiles > 0 || doneFiles > 0 ? "printing" : "queued";
+  // Follows the same stage as the drawing so the two never disagree.
   const headline = allCancelled
     ? t("ticket_cancelled")
-    : allDone
-      ? t("all_ready")
-      : printingFiles > 0
-        ? t("currently_printing")
-        : t("queued_status");
+    : { done: t("all_ready"), printing: t("currently_printing"), queued: t("queued_status") }[stage];
 
   return (
     <div className="space-y-5">
@@ -140,7 +134,7 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
               {headline}
             </h2>
             {!allCancelled && (
-              <p className="mt-0.5 font-mono text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
+              <p className="mt-0.5 font-mono text-xs text-muted-foreground tabular-nums">
                 {doneFiles} / {totalFiles} · {t("progress")}
               </p>
             )}
@@ -149,9 +143,9 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
             type="button"
             onClick={refreshData}
             disabled={isRefreshing}
-            aria-label="Refresh"
-            title="Refresh"
-            className="-mr-2 -mt-1 inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+            aria-label={t("refresh")}
+            title={t("refresh")}
+            className="-mr-2.5 -mt-2 inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} aria-hidden="true" />
           </button>
@@ -171,15 +165,15 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
         className="rounded-2xl bg-card shadow-card"
       >
         <h2 id="docs-heading" className="px-5 pt-5 pb-2 text-[15px] font-semibold text-foreground sm:px-7">
-          {t("documents_heading")} <span className="font-mono text-xs font-normal text-zinc-400">({files.length})</span>
+          {t("documents_heading")} <span className="font-mono text-xs font-normal text-muted-foreground">({files.length})</span>
         </h2>
 
         <ul className="divide-y divide-border">
           {files.map((file) => (
             <li key={file.id} className="flex items-start gap-3 px-5 py-4 sm:items-center sm:px-7">
-              {getFileIcon(file.file_name)}
+              <FileGlyph fileName={file.file_name} />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-foreground">{file.file_name}</p>
+                <FileName name={file.file_name} className="text-sm font-semibold text-foreground" />
                 <p className="mt-0.5 text-[13px] text-muted-foreground">
                   {[
                     file.paper_size || "A4",
@@ -197,16 +191,16 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
                   </p>
                 )}
               </div>
-              <StatusBadge status={file.status as PrintStatus} size="md" className="shrink-0" />
+              <StatusBadge status={file.status as PrintStatus} label={t(`status_${file.status as PrintStatus}`)} size="md" className="shrink-0" />
             </li>
           ))}
         </ul>
       </section>
 
       <p className="flex items-start gap-2.5 px-1 text-[13px] leading-relaxed text-muted-foreground">
-        <Printer className="mt-0.5 h-4 w-4 shrink-0 text-zinc-400" aria-hidden="true" />
+        <Printer className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
         <span>
-          <span className="font-semibold text-zinc-800 dark:text-zinc-200">{t("how_to_collect_title")}. </span>
+          <span className="font-semibold text-foreground">{t("how_to_collect_title")}. </span>
           {t("how_to_collect_body")}
         </span>
       </p>

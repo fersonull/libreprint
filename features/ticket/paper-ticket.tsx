@@ -79,27 +79,27 @@ export function PaperTicket({ ticketCode, clientName, createdAt, totalFiles }: P
               onClick={handleCopy}
               aria-label={copyLabel}
               title={copyLabel}
-              className={`inline-flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
+              className={`inline-flex size-11 shrink-0 items-center justify-center rounded-lg transition-colors ${
                 copyState === "copied"
                   ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-zinc-500 hover:bg-zinc-100 hover:text-foreground dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
               }`}
             >
               {copyState === "copied" ? <Check className="size-[18px]" aria-hidden="true" /> : <Copy className="size-[18px]" aria-hidden="true" />}
             </button>
           </div>
-          <p className="mt-4 text-[15px] text-zinc-700 dark:text-zinc-300">
+          <p className="mt-4 text-[15px] text-muted-foreground">
             <span className="font-semibold text-foreground">{clientName}</span>
-            <span className="text-zinc-400 dark:text-zinc-500"> · </span>
+            <span aria-hidden="true"> · </span>
             {totalFiles} {totalFiles === 1 ? t("document") : t("documents")}
           </p>
         </div>
 
-        <div className="mx-5 border-t-2 border-dashed border-zinc-200 dark:border-zinc-700" aria-hidden="true" />
+        <div className="mx-5 border-t-2 border-dashed border-border" aria-hidden="true" />
 
         <div className="flex items-center justify-between gap-4 px-6 py-4 text-[13px] sm:px-8">
           <span className="text-muted-foreground">{t("show_at_counter")}</span>
-          <time className="shrink-0 font-mono text-xs text-zinc-500 tabular-nums dark:text-zinc-400" dateTime={created.toISOString()}>
+          <time className="shrink-0 font-mono text-xs text-muted-foreground tabular-nums" dateTime={created.toISOString()}>
             {formattedDate} · {formattedTime}
           </time>
         </div>
