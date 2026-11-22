@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDb, PrintFile } from "@/shared/server/db";
 import { getFilePath } from "@/shared/server/storage";
+import { isStaffAuthenticated } from "@/shared/server/staff-session";
 import fs from "fs";
 
 export async function GET(
@@ -8,6 +9,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Customer documents are private: only signed-in staff may open them.
+    if (!(await isStaffAuthenticated())) {
+      return NextResponse.json({ error: "Unauthorized staff access." }, { status: 401 });
+    }
+
     const { id } = await params;
     const db = getDb();
 
@@ -35,7 +41,7 @@ export async function GET(
         "Content-Type": fileRecord.file_type || "application/octet-stream",
         "Content-Length": fileBuffer.length.toString(),
         "Content-Disposition": `inline; filename="${encodeURIComponent(fileRecord.file_name)}"`,
-        "Cache-Control": "public, max-age=3600",
+        "Cache-Control": "private, max-age=3600",
       },
     });
   } catch (error) {

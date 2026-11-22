@@ -17,8 +17,9 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  // Protect staff API routes (except auth login)
-  if (pathname.startsWith("/api/staff") && !pathname.startsWith("/api/staff/auth")) {
+  // Protect staff API routes (except auth login) and uploaded documents
+  const isStaffApi = pathname.startsWith("/api/staff") && !pathname.startsWith("/api/staff/auth");
+  if (isStaffApi || pathname.startsWith("/api/files")) {
     const cookieHeader = request.headers.get("cookie");
     const isAuthenticated = isStaffHeaderAuthenticated(cookieHeader);
 
@@ -37,5 +38,6 @@ export const config = {
   matcher: [
     "/staff/dashboard/:path*",
     "/api/staff/:path*",
+    "/api/files/:path*",
   ],
 };
