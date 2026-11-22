@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-import { Check, Copy, Download } from "lucide-react";
-import { toPng } from "html-to-image";
-import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
+import { Check, Copy } from "lucide-react";
+import { SaveTicketImageButton } from "./save-image/save-ticket-image-button";
 import { useI18n } from "@/lib/i18n";
 
 interface PaperTicketProps {
@@ -20,40 +19,6 @@ const notchMask =
 export function PaperTicket({ ticketCode, clientName, createdAt, totalFiles }: PaperTicketProps) {
   const { t } = useI18n();
   const [copyState, setCopyState] = useState<"copied" | "error" | null>(null);
-  const ticketRef = useRef<HTMLDivElement>(null);
-  const [saveState, setSaveState] = useState<"saving" | "error" | null>(null);
-
-  const handleSave = async () => {
-    if (!ticketRef.current) return;
-    setSaveState("saving");
-    try {
-      const dataUrl = await toPng(ticketRef.current, {
-        pixelRatio: 3,
-        // The copy button is for the screen, not the saved ticket.
-        filter: (node) => !(node instanceof HTMLElement && node.dataset.captureSkip !== undefined),
-      });
-      const fileName = `${ticketCode}.png`;
-      // On phones the share sheet can put it in Photos; a download would land in Files.
-      if (window.matchMedia("(pointer: coarse)").matches && navigator.canShare) {
-        const file = new File([await (await fetch(dataUrl)).blob()], fileName, { type: "image/png" });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: ticketCode }).catch(() => {});
-          setSaveState(null);
-          return;
-        }
-      }
-      const link = document.createElement("a");
-      link.href = dataUrl;
-      link.download = fileName;
-      link.click();
-      setSaveState(null);
-    } catch (error) {
-      console.error("Failed to save ticket image:", error);
-      setSaveState("error");
-      setTimeout(() => setSaveState(null), 3000);
-    }
-  };
-
   const copyWithFallback = () => {
     const input = document.createElement("textarea");
     input.value = ticketCode;
@@ -101,7 +66,6 @@ export function PaperTicket({ ticketCode, clientName, createdAt, totalFiles }: P
     <div>
       <div className="drop-shadow-[0_18px_28px_oklch(0_0_0/0.12)] dark:drop-shadow-none">
         <div
-          ref={ticketRef}
           className="rounded-2xl bg-card"
           style={{ ["--tear" as string]: "68%", mask: notchMask, WebkitMask: notchMask }}
         >
@@ -113,7 +77,6 @@ export function PaperTicket({ ticketCode, clientName, createdAt, totalFiles }: P
               </h1>
               <button
                 type="button"
-                data-capture-skip
                 onClick={handleCopy}
                 aria-label={copyLabel}
                 title={copyLabel}
@@ -144,13 +107,10 @@ export function PaperTicket({ ticketCode, clientName, createdAt, totalFiles }: P
         </div>
       </div>
       <div className="mt-3 flex justify-center">
-        <Button variant="ghost" className="h-11 text-muted-foreground" onClick={handleSave} disabled={saveState === "saving"}>
-          <Download data-icon="inline-start" aria-hidden="true" />
-          {saveState === "error" ? t("save_image_failed") : t("save_image")}
-        </Button>
+        <SaveTicketImageButton ticketCode={ticketCode} clientName={clientName} createdAt={createdAt} totalFiles={totalFiles} />
       </div>
       <span className="sr-only" aria-live="polite">
-        {copyState === "copied" ? t("copied") : copyState === "error" ? t("copy_failed") : saveState === "error" ? t("save_image_failed") : ""}
+        {copyState === "copied" ? t("copied") : copyState === "error" ? t("copy_failed") : ""}
       </span>
     </div>
   );
