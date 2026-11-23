@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from "recharts";
+import dynamic from "next/dynamic";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -12,12 +12,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { ChartContainer, ChartTooltipContent } from "@/shared/components/ui/chart";
 import { StatusBadge } from "@/shared/components/status-badge";
 import { EmptyTray } from "@/shared/components/illustrations";
 import type { getOverview, TicketSummary } from "../queries";
 import { LiveRefresh } from "@/shared/components/live-refresh";
 import { plural, timeAgo, when } from "../format";
+
+// recharts is ~150 KB gzipped; loading it after the page lets the first sign-in land without waiting for it.
+const DailyChart = dynamic(() => import("./daily-chart").then((m) => m.DailyChart), {
+  ssr: false,
+  loading: () => <div className="h-[280px]" />,
+});
 
 type OverviewData = ReturnType<typeof getOverview>;
 
@@ -127,41 +132,7 @@ export function Overview({ data }: { data: OverviewData }) {
           <CardDescription>Last seven days</CardDescription>
         </CardHeader>
         <CardContent className="text-muted-foreground">
-          <ChartContainer>
-            <BarChart
-              data={data.daily}
-              accessibilityLayer
-              margin={{ top: 8, right: 8, left: -20, bottom: 0 }}
-            >
-              <CartesianGrid vertical={false} stroke="var(--analytics-grid)" />
-              <XAxis
-                dataKey="label"
-                axisLine={false}
-                tickLine={false}
-                tickMargin={8}
-                tick={{ fill: "currentColor" }}
-              />
-              <YAxis
-                allowDecimals={false}
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: "currentColor" }}
-              />
-              <Tooltip
-                content={<ChartTooltipContent />}
-                cursor={{ fill: "var(--muted)" }}
-              />
-              {/* no grow-in: the page refreshes every few seconds and it would replay each time */}
-              <Bar
-                dataKey="tickets"
-                name="Tickets"
-                fill="var(--analytics-bar)"
-                radius={[4, 4, 0, 0]}
-                maxBarSize={42}
-                isAnimationActive={false}
-              />
-            </BarChart>
-          </ChartContainer>
+          <DailyChart daily={data.daily} />
         </CardContent>
       </Card>
 
