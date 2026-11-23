@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useTheme } from "@/shared/lib/theme";
-import { useI18n } from "@/shared/lib/i18n";
+import { LANGUAGES, useI18n } from "@/shared/lib/i18n";
 import { Sun, Moon } from "lucide-react";
 
 const base =
@@ -27,18 +27,23 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
 
 export function LanguageToggle({ className = "" }: { className?: string }) {
   const { lang, setLang } = useI18n();
+  const index = Math.max(0, LANGUAGES.findIndex((l) => l.code === lang));
+  const next = LANGUAGES[(index + 1) % LANGUAGES.length];
 
   return (
     <button
       type="button"
-      onClick={() => setLang(lang === "en" ? "fil" : "en")}
+      onClick={() => setLang(next.code)}
       className={`${base} gap-0.5 px-2 text-[12px] font-semibold tracking-wide ${className}`}
-      aria-label={lang === "en" ? "Palitan sa Filipino" : "Switch to English"}
-      title="Palitan ang wika / Change language"
+      aria-label={`${LANGUAGES[index].name}. Switch to ${next.name}`}
+      title={`Switch to ${next.name}`}
     >
-      <span className={lang === "en" ? "text-foreground" : "text-zinc-400 dark:text-zinc-500"}>EN</span>
-      <span className="text-zinc-300 dark:text-zinc-600" aria-hidden="true">/</span>
-      <span className={lang === "fil" ? "text-foreground" : "text-zinc-400 dark:text-zinc-500"}>FIL</span>
+      {LANGUAGES.map((l, i) => (
+        <React.Fragment key={l.code}>
+          {i > 0 && <span className="text-zinc-300 dark:text-zinc-600" aria-hidden="true">/</span>}
+          <span className={l.code === lang ? "text-foreground" : "text-zinc-400 dark:text-zinc-500"}>{l.label}</span>
+        </React.Fragment>
+      ))}
     </button>
   );
 }

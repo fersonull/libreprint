@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Local database and document storage
 /data/
+
+# Offline translation model (bun run translate)
+/.cache/

@@ -1,8 +1,10 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useSyncExternalStore } from "react";
+import { LANGUAGES, MESSAGES } from "@/shared/i18n/messages";
 
-export type Language = "en" | "fil";
+// Strings live in shared/i18n/locales/*.json; `bun run translate` fills in other languages from English.
+export type Language = string;
 
 interface I18nContextType {
   lang: Language;
@@ -10,320 +12,52 @@ interface I18nContextType {
   t: (key: string) => string;
 }
 
-const translations: Record<Language, Record<string, string>> = {
-  en: {
-    queue_nav: "Queue",
-    queue_title: "Print queue",
-    queue_subtitle: "See where your ticket is. When your code shows under Ready for pickup, go to the counter.",
-    queue_in_line: "In line",
-    queue_none_ready: "Nothing ready yet.",
-    queue_none_waiting: "No one is waiting. New tickets show up here right away.",
-    queue_masked_note: "Codes show only their last two digits. Match them with the code on your ticket.",
-    brand: "libreprint",
-    brand_tagline: "Local Print Service",
-    upload_nav: "Upload Docs",
-    staff_nav: "Staff Desk",
-    upload_title: "Submit Documents for Printing",
-    upload_subtitle: "Upload your files and get an instant paper claim ticket to track your printing progress.",
-    full_name: "Your Full Name",
-    name_hint: "This name will be announced at the counter when your prints are ready.",
-    name_placeholder: "e.g. Maria Santos",
-    select_docs: "Select Documents to Print",
-    drag_drop_title: "Click to upload or drag and drop",
-    drag_drop_subtitle: "PDF, Word (DOCX), PNG, JPG • Up to 50 MB each, 100 MB total",
-    file_size_limit: "Each file must be 50 MB or smaller.",
-    total_upload_limit: "Combined file size cannot exceed 100 MB.",
-    selected_docs: "Documents Selected",
-    document: "document",
-    documents: "documents",
-    clear_all: "Clear all",
-    paper_size: "Paper Size",
-    copies: "Copies",
-    color_mode: "Color Mode",
-    bw: "B&W",
-    color: "Color",
-    orientation: "Orientation",
-    portrait: "Portrait",
-    landscape: "Landscape",
-    duplex: "Print Sidedness",
-    single_sided: "Single-sided",
-    double_sided: "Back-to-Back",
-    pages_to_print: "Pages to print",
-    pages_placeholder: "All (or 1-3, 5)",
-    remove_file: "Remove file",
-    unsupported_files: "Unsupported format: {files}. Please upload PDF, Word (DOCX), or PNG/JPG.",
-    upload_failed: "Upload failed.",
-    unexpected_error: "An unexpected error occurred.",
-    notes_label: "Special Instructions / Notes",
-    notes_placeholder: "e.g. Staple top-left, page 1-3 only, thick paper...",
-    submit_ticket: "Create Print Ticket",
-    find_ticket_title: "Already submitted a document?",
-    find_ticket_body: "Enter the code on your claim ticket to see how it's going.",
-    ticket_code_label: "Ticket code",
-    ticket_code_invalid: "Enter the 6 digits after PQ- on your ticket.",
-    recent_tickets: "Recent on this phone",
-    find_ticket_button: "Find ticket",
-    submitting: "Submitting to Queue...",
-    // Ticket page
-    ticket_title: "Paper Claim Ticket",
-    ticket_subtitle: "Keep this ticket stub open to watch live progress.",
-    copy_code: "Copy Code",
-    copied: "Copied",
-    save_image: "Save ticket as image",
-    save_image_failed: "Couldn't save the image. Try again.",
-    ticket_image_heading: "Claim ticket",
-    ticket_image_submitted: "Submitted",
-    ticket_image_howto: "How to use this ticket",
-    ticket_image_step1: "Keep this image. It's your proof when you pick up.",
-    ticket_image_step2: "Check your ticket page until it says \"Ready for pickup\".",
-    ticket_image_step3: "Show this code at the counter to collect your prints.",
-    ticket_image_track: "Track your prints at",
-    copy_failed: "Could not copy code",
-    prepared_for: "Prepared for",
-    submitted_at: "Submitted at",
-    progress: "Print Progress",
-    all_ready: "All Documents Ready for Pickup",
-    ticket_cancelled: "This ticket was cancelled",
-    status_queued: "Queued",
-    status_printing: "Printing",
-    status_done: "Done",
-    status_cancelled: "Cancelled",
-    currently_printing: "Currently Printing Documents",
-    queued_status: "Waiting in Print Queue",
-    how_to_collect_title: "How to claim your documents",
-    how_to_collect_body: "Present your paper claim ticket code to the counter staff when collecting your printed sheets.",
-    submit_another: "Submit another document",
-    claim_code: "Claim code",
-    show_at_counter: "Show this code at the counter",
-    stage_queued: "In the queue",
-    stage_printing: "Printing",
-    stage_done: "Ready for pickup",
-    documents_heading: "Documents",
-    ticket_limited_title: "Too many lookups",
-    ticket_limited_body: "This device looked up too many ticket codes. Wait a few minutes, then try again.",
-    ticket_not_found_title: "We couldn't find that ticket",
-    ticket_not_found_body: "No ticket matches “{code}”. Check the code on your stub and try again.",
-    back_to_upload: "Back to upload",
-    empty_queue_title: "Nothing waiting",
-    empty_queue_body: "New tickets show up here as soon as a customer submits.",
-    no_search_results: "No tickets match your search.",
-    your_documents: "Your documents",
-    print_settings: "Print settings",
-    settings_empty: "Add a document to choose its paper, color and copies.",
-    apply_to_all: "Apply to all files",
-    applied_to_all: "Applied to all files",
-    files_one: "file",
-    files_other: "files",
-    clear_all_title: "Remove all documents?",
-    clear_all_msg: "Every document you added will be removed from this ticket. Your name stays.",
-    clear_all_confirm: "Remove all",
-    clear_all_cancel: "Keep them",
-    copies_count: "{n} copies",
-    copy_one: "1 copy",
-    preview_label: "Preview of the printed sheet",
-    more_copies: "More copies",
-    fewer_copies: "Fewer copies",
-    dismiss: "Dismiss",
-    // Staff Desk
-    desk_title: "Staff Print Desk",
-    desk_subtitle: "Manage document queue, preview files, and print on demand.",
-    queued_kpi: "Queued Documents",
-    printing_kpi: "Currently Printing",
-    completed_kpi: "Completed Prints",
-    total_tickets_kpi: "Total Tickets",
-    all_tickets_tab: "All Tickets",
-    queued_tab: "Queued",
-    printing_tab: "Printing",
-    completed_tab: "Completed",
-    search_placeholder: "Search ticket code or client name...",
-    open_and_print: "Open & Print",
-    open_all: "Open All to Print",
-    mark_printing: "Mark Printing",
-    mark_done: "Mark Done",
-    mark_all_done: "Mark All Done",
-    cancel_btn: "Cancel",
-    confirm_cancel_title: "Cancel Document?",
-    confirm_cancel_msg: "This operation cannot be undone. Are you sure you want to cancel this print job?",
-    keep_btn: "Keep Document",
-    confirm_cancel_action: "Yes, Cancel Document",
-    sign_in_title: "Staff Desk Login",
-    sign_in_subtitle: "Enter the local staff password to manage incoming print queues.",
-    password_label: "Access Password",
-    sign_in_btn: "Sign In to Staff Desk",
-    sign_out: "Sign Out",
-    refresh: "Refresh Queue",
-  },
-  fil: {
-    queue_nav: "Pila",
-    queue_title: "Pila ng pag-print",
-    queue_subtitle: "Tingnan kung nasaan na ang iyong tiket. Kapag nasa Handa nang kunin na ang code mo, pumunta sa counter.",
-    queue_in_line: "Nakapila",
-    queue_none_ready: "Wala pang handa.",
-    queue_none_waiting: "Walang nakapila. Lalabas agad dito ang mga bagong tiket.",
-    queue_masked_note: "Huling dalawang numero lang ng code ang ipinapakita. Itugma ito sa code sa iyong tiket.",
-    brand: "libreprint",
-    brand_tagline: "Lokal na Serbisyo sa Pag-print",
-    upload_nav: "Mag-upload",
-    staff_nav: "Tanggapan ng Staff",
-    upload_title: "Mag-print ng Dokumento",
-    upload_subtitle: "I-upload ang iyong mga dokumento at kumuha agad ng paper claim ticket para masubaybayan ang pag-print.",
-    full_name: "Iyong Buong Pangalan",
-    name_hint: "Tatawagin ang pangalang ito sa counter kapag tapos na ang iyong print.",
-    name_placeholder: "Hal. Juan Dela Cruz",
-    select_docs: "Pumili ng mga Dokumentong Iimprinta",
-    drag_drop_title: "Pindutin para pumili o i-drag and drop ang mga file",
-    drag_drop_subtitle: "PDF, Word (DOCX), PNG, JPG • Hanggang 50 MB bawat file, 100 MB lahat",
-    file_size_limit: "Dapat 50 MB o mas maliit ang bawat file.",
-    total_upload_limit: "Hindi puwedeng lumampas sa 100 MB ang pinagsamang laki ng mga file.",
-    selected_docs: "Mga Dokumentong Napili",
-    document: "dokumento",
-    documents: "dokumento",
-    clear_all: "Alisin lahat",
-    paper_size: "Sukat ng Papel",
-    copies: "Kopya",
-    color_mode: "Kulay",
-    bw: "Itim at Puti",
-    color: "May Kulay",
-    orientation: "Oryentasyon",
-    portrait: "Patayo (Portrait)",
-    landscape: "Pahiga (Landscape)",
-    duplex: "Pagkaka-print",
-    single_sided: "Isahang-Mukha",
-    double_sided: "Likod-sa-Likod",
-    pages_to_print: "Mga pahinang ipi-print",
-    pages_placeholder: "Lahat (o 1-3, 5)",
-    remove_file: "Alisin ang file",
-    unsupported_files: "Hindi suportadong format: {files}. Mag-upload ng PDF, Word (DOCX), o PNG/JPG.",
-    upload_failed: "Hindi naisumite ang upload.",
-    unexpected_error: "May hindi inaasahang error.",
-    notes_label: "Espesyal na Tagubilin / Paalala",
-    notes_placeholder: "Hal. Paki-staple sa kaliwa, pahina 1 hanggang 5 lamang...",
-    submit_ticket: "Kumuha ng Print Ticket",
-    find_ticket_title: "Nakapagsumite na ng dokumento?",
-    find_ticket_body: "Ilagay ang code sa iyong claim ticket para makita ang takbo nito.",
-    ticket_code_label: "Ticket code",
-    ticket_code_invalid: "Ilagay ang 6 na numero pagkatapos ng PQ- sa iyong tiket.",
-    recent_tickets: "Kamakailan sa phone na ito",
-    find_ticket_button: "Hanapin ang tiket",
-    submitting: "Ipinapadala sa Pila...",
-    // Ticket page
-    ticket_title: "Papel na Claim Ticket",
-    ticket_subtitle: "Panatilihing bukas ang tiket na ito upang masubaybayan ang takbo ng pag-print.",
-    copy_code: "Kopyahin ang Code",
-    copied: "Nakopya na",
-    save_image: "I-save ang ticket bilang larawan",
-    save_image_failed: "Hindi na-save ang larawan. Subukan muli.",
-    ticket_image_heading: "Claim ticket",
-    ticket_image_submitted: "Isinumite noong",
-    ticket_image_howto: "Paano gamitin ang ticket na ito",
-    ticket_image_step1: "I-save ang larawang ito. Ito ang patunay mo sa pagkuha.",
-    ticket_image_step2: "Tingnan ang iyong ticket page hanggang makita ang \"Handa nang kunin\".",
-    ticket_image_step3: "Ipakita ang code na ito sa counter para makuha ang iyong mga print.",
-    ticket_image_track: "Subaybayan ang iyong print sa",
-    copy_failed: "Hindi nakopya ang code",
-    prepared_for: "Para kay",
-    submitted_at: "Oras ng pagsumite",
-    progress: "Progreso ng Pag-print",
-    all_ready: "Handa na Para Kunin sa Counter",
-    ticket_cancelled: "Kinansela ang ticket na ito",
-    status_queued: "Nakapila",
-    status_printing: "Ini-imprenta",
-    status_done: "Tapos na",
-    status_cancelled: "Kinansela",
-    currently_printing: "Kasalukuyang Iniimprenta ang Dokumento",
-    queued_status: "Nasa Pila ng Pag-iimprenta",
-    how_to_collect_title: "Paano kunin ang iyong mga print",
-    how_to_collect_body: "Ipakita ang numero ng iyong claim ticket sa counter staff upang kunin ang iyong mga naimprentang papel.",
-    submit_another: "Magsumite ng iba pang dokumento",
-    claim_code: "Claim code",
-    show_at_counter: "Ipakita ang code na ito sa counter",
-    stage_queued: "Nakapila",
-    stage_printing: "Ini-imprenta",
-    stage_done: "Handa nang kunin",
-    documents_heading: "Mga Dokumento",
-    ticket_limited_title: "Masyadong maraming paghahanap",
-    ticket_limited_body: "Masyadong maraming ticket code ang hinanap sa device na ito. Maghintay ng ilang minuto, saka subukan ulit.",
-    ticket_not_found_title: "Hindi namin mahanap ang ticket",
-    ticket_not_found_body: "Walang ticket na tugma sa “{code}”. Tingnan ang code sa iyong stub at subukan muli.",
-    back_to_upload: "Bumalik sa pag-upload",
-    empty_queue_title: "Walang nakapila",
-    empty_queue_body: "Lalabas dito ang mga bagong ticket pagka-submit ng customer.",
-    no_search_results: "Walang ticket na tugma sa iyong hinanap.",
-    your_documents: "Iyong mga dokumento",
-    print_settings: "Mga setting sa pag-print",
-    settings_empty: "Magdagdag ng dokumento para piliin ang papel, kulay at kopya.",
-    apply_to_all: "Gamitin sa lahat ng file",
-    applied_to_all: "Nagamit na sa lahat ng file",
-    files_one: "file",
-    files_other: "file",
-    clear_all_title: "Alisin ang lahat ng dokumento?",
-    clear_all_msg: "Mawawala sa ticket na ito ang lahat ng idinagdag mong dokumento. Mananatili ang iyong pangalan.",
-    clear_all_confirm: "Alisin lahat",
-    clear_all_cancel: "Huwag alisin",
-    copies_count: "{n} kopya",
-    copy_one: "1 kopya",
-    preview_label: "Silip ng ipi-print na papel",
-    more_copies: "Dagdag na kopya",
-    fewer_copies: "Bawas na kopya",
-    dismiss: "Isara",
-    // Staff Desk
-    desk_title: "Tanggapan ng Staff",
-    desk_subtitle: "Pamahalaan ang pila ng dokumento, i-preview ang mga file, at mag-print agad.",
-    queued_kpi: "Nasa Pila",
-    printing_kpi: "Iniimprenta",
-    completed_kpi: "Tapos Na",
-    total_tickets_kpi: "Kabuuang Tiket",
-    all_tickets_tab: "Lahat ng Tiket",
-    queued_tab: "Nasa Pila",
-    printing_tab: "Iniimprenta",
-    completed_tab: "Tapos Na",
-    search_placeholder: "Maghanap ng ticket code o pangalan...",
-    open_and_print: "Buksan at I-print",
-    open_all: "Buksan Lahat Para I-print",
-    mark_printing: "Gawing Iniimprenta",
-    mark_done: "Gawing Tapos Na",
-    mark_all_done: "Gawing Tapos Lahat",
-    cancel_btn: "Kanselahin",
-    confirm_cancel_title: "Kanselahin ang Dokumento?",
-    confirm_cancel_msg: "Hindi na ito maibabalik kapag kinansela. Sigurado ka bang nais mong kanselahin ang trabahong ito?",
-    keep_btn: "Huwag Kanselahin",
-    confirm_cancel_action: "Oo, Kanselahin",
-    sign_in_title: "Pag-login sa Tanggapan ng Staff",
-    sign_in_subtitle: "Ipasok ang lokal na staff password upang pamahalaan ang mga print queue.",
-    password_label: "Password ng Tanggapan",
-    sign_in_btn: "Mag-sign In sa Tanggapan",
-    sign_out: "Mag-sign Out",
-    refresh: "I-refresh ang Pila",
-  },
-};
+const STORAGE_KEY = "libreprint_lang";
+const listeners = new Set<() => void>();
+
+function readLang(): Language {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved && saved in MESSAGES) return saved;
+  } catch {
+    // Storage blocked: fall back to English.
+  }
+  return "en";
+}
+
+function setLang(lang: Language) {
+  try {
+    localStorage.setItem(STORAGE_KEY, lang);
+  } catch {
+    // Storage blocked: the choice lasts for this page only.
+  }
+  listeners.forEach((l) => l());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function translate(lang: Language, key: string): string {
+  return MESSAGES[lang]?.[key] || MESSAGES.en[key] || key;
+}
 
 const I18nContext = createContext<I18nContextType>({
   lang: "en",
   setLang: () => {},
-  t: (key: string) => key,
+  t: (key) => translate("en", key),
 });
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Language>("en");
+  const lang = useSyncExternalStore(subscribe, readLang, () => "en");
 
   useEffect(() => {
-    const saved = localStorage.getItem("libreprint_lang") as Language;
-    if (saved === "en" || saved === "fil") {
-      setLangState(saved);
-    }
-  }, []);
-
-  const setLang = (newLang: Language) => {
-    setLangState(newLang);
-    localStorage.setItem("libreprint_lang", newLang);
-  };
-
-  const t = (key: string): string => {
-    return translations[lang]?.[key] || translations.en[key] || key;
-  };
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   return (
-    <I18nContext.Provider value={{ lang, setLang, t }}>
+    <I18nContext.Provider value={{ lang, setLang, t: (key) => translate(lang, key) }}>
       {children}
     </I18nContext.Provider>
   );
@@ -332,3 +66,5 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 export function useI18n() {
   return useContext(I18nContext);
 }
+
+export { LANGUAGES };

@@ -1,0 +1,4 @@
+[
+  { "code": "en", "label": "EN", "name": "English", "nllb": "eng_Latn" },
+  { "code": "fil", "label": "FIL", "name": "Filipino", "nllb": "tgl_Latn" }
+]

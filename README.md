@@ -14,7 +14,7 @@ No customer accounts, no cloud: files and the database stay on the shop's machin
 - Get a claim ticket and follow its status live: queued, printing, ready for pickup.
 - Save the ticket as an image (with how-to-use steps) to show at the counter.
 - Find a ticket again by its code.
-- English and Filipino, light and dark mode.
+- English and Filipino (more languages can be machine-translated offline), light and dark mode.
 
 **For staff** (signed in with a shared password)
 - **Overview:** what's queued, printing and recently finished, plus daily activity.
@@ -58,6 +58,17 @@ Set these in `.env.local` before using it in a shop.
 
 Staff sign-in allows 10 attempts per 15 minutes per visitor, and looking up tickets by code allows 20 per 10 minutes. Both limits live in memory and reset when the server restarts.
 
+### Languages
+
+All text lives in `shared/i18n/locales/` as one JSON file per language, with English (`en.json`) as the source. Other languages are generated from it by a translation model that runs on this computer:
+
+```bash
+bun run translate          # every language in shared/i18n/languages.json
+bun run translate fil      # just Filipino
+```
+
+The first run downloads Meta's NLLB model (about 600 MB) into `.cache/models/`; after that it works offline. Hand-written strings in `shared/i18n/overrides/<code>.json` always win over the machine translation, so fix a clumsy translation there and rerun. To add a language, add it to `languages.json` with its [NLLB code](https://github.com/facebookresearch/flores/blob/main/flores200/README.md#languages-in-flores-200) (e.g. Cebuano is `ceb_Latn`), run `bun run translate <code>`, then import the new file in `shared/i18n/messages.ts`.
+
 Uploads and the database live in `data/` (`data/uploads/` and `data/printqueue.db`), which git ignores. Back up that folder to keep the shop's history.
 
 ## Project structure
@@ -75,7 +86,8 @@ features/
     server.ts        Public server-only API (queries, route handlers)
 shared/
   components/        UI used by several features, including shadcn/ui in components/ui
-  lib/               i18n, theme, utilities
+  i18n/              Language list, translation files (locales/) and hand-written overrides
+  lib/               i18n provider, theme, utilities
   server/            Database, file storage, live updates, staff session, ticket lookup
 proxy.ts             Guards staff pages, staff APIs and uploaded files
 ```
@@ -92,6 +104,7 @@ Rules:
 bun run typecheck
 bun run lint
 bun run features/ticket/progress.check.ts
+bun run shared/i18n/messages.check.ts
 bun --conditions=react-server run features/staff/queries.check.ts
 ```
 
