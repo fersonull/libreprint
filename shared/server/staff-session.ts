@@ -61,13 +61,14 @@ export function verifyStaffPassword(inputPassword: string): boolean {
   return configured !== null && safeEqual(inputPassword.trim(), configured);
 }
 
-export async function setStaffSession(): Promise<void> {
+/** `secure` must match how the visitor reached us: browsers drop Secure cookies on plain-http LAN addresses. */
+export async function setStaffSession({ secure }: { secure: boolean }): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.set({
     name: STAFF_COOKIE_NAME,
     value: createToken(),
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure,
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_MS / 1000,

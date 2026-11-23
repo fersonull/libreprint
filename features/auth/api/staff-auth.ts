@@ -41,7 +41,9 @@ export async function POST(request: Request) {
     }
 
     resetRateLimit(limitKey);
-    await setStaffSession();
+    // Cloudflare Tunnel reaches us over http but tells us the visitor used https.
+    const secure = request.headers.get("x-forwarded-proto") === "https" || new URL(request.url).protocol === "https:";
+    await setStaffSession({ secure });
     return NextResponse.json({ success: true, message: "Logged in as staff" });
   } catch (error) {
     console.error("Auth error:", error);
