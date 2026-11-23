@@ -47,6 +47,16 @@ bun run build
 bun run start
 ```
 
+### Daily start (shop PC)
+
+One command starts the production server and the public zrok link, rebuilding first only if the code changed. Running it again is harmless: anything already running is left alone. Paste it into PowerShell:
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/fersonull/libreprint/main/scripts/start.ps1 | iex
+```
+
+It opens the staff dashboard and prints the staff, shop Wi-Fi and customer addresses. To stop, close the minimized "libreprint server" and "libreprint link" windows. Settings: `LIBREPRINT_DIR` (project folder, default `C:\Dev\printqueue`), `LIBREPRINT_ZROK_NAME` (reserved zrok name, default `libreprint`), `LIBREPRINT_ZROK` (path to the zrok executable).
+
 ### Configuration
 
 Set these in `.env.local` before using it in a shop.
