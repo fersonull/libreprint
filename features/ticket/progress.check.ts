@@ -10,3 +10,9 @@ console.assert(ticketProgress(s("cancelled", "cancelled")).allCancelled, "all ca
 console.assert(!ticketProgress(s("cancelled", "cancelled")).allDone, "all cancelled is not ready for pickup");
 console.assert(!ticketProgress([]).allDone && !ticketProgress([]).allCancelled, "no documents is neither");
 console.log("ticket progress ok");
+
+const { codeDigits } = await import("./recent-tickets");
+console.assert(codeDigits("PQ-481920") === "481920", "pasted full code keeps its digits");
+console.assert(codeDigits(" pq 4819 ") === "4819", "lowercase prefix and spaces are dropped");
+console.assert(codeDigits("4819201234") === "481920", "at most six digits");
+console.log("recent-tickets ok");

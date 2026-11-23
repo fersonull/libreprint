@@ -10,6 +10,7 @@ import { StatusPlates, type PlateStage } from "@/shared/components/illustrations
 import { FileGlyph, FileName } from "@/shared/components/file-glyph";
 import { formatFileSize } from "@/shared/lib/utils";
 import { ticketProgress } from "./progress";
+import { rememberTicket } from "./recent-tickets";
 
 interface TicketTrackerProps {
   initialTicket: Ticket;
@@ -22,6 +23,8 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
   const [files, setFiles] = useState<PrintFile[]>(initialFiles);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const eventSourceRef = useRef<EventSource | null>(null);
+
+  useEffect(() => rememberTicket(ticket.ticket_code), [ticket.ticket_code]);
 
   const refreshData = useCallback(async () => {
     try {

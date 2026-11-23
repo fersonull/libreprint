@@ -59,7 +59,8 @@ const translations: Record<Language, Record<string, string>> = {
     submit_ticket: "Create Print Ticket",
     find_ticket_title: "Already submitted a document?",
     ticket_code_label: "Ticket code",
-    ticket_code_placeholder: "Enter your code, e.g. PQ-481920",
+    ticket_code_invalid: "Enter the 6 digits after PQ- on your ticket.",
+    recent_tickets: "Recent on this phone",
     find_ticket_button: "Find ticket",
     submitting: "Submitting to Queue...",
     // Ticket page
@@ -199,7 +200,8 @@ const translations: Record<Language, Record<string, string>> = {
     submit_ticket: "Kumuha ng Print Ticket",
     find_ticket_title: "Nakapagsumite na ng dokumento?",
     ticket_code_label: "Ticket code",
-    ticket_code_placeholder: "Ilagay ang code, hal. PQ-481920",
+    ticket_code_invalid: "Ilagay ang 6 na numero pagkatapos ng PQ- sa iyong tiket.",
+    recent_tickets: "Kamakailan sa phone na ito",
     find_ticket_button: "Hanapin ang tiket",
     submitting: "Ipinapadala sa Pila...",
     // Ticket page
