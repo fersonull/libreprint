@@ -5,7 +5,7 @@ import Link from "next/link";
 import { LibrePrintLogo } from "./logo";
 import { ThemeToggle, LanguageToggle } from "./controls";
 import { useI18n } from "@/shared/lib/i18n";
-import { Shield, UploadCloud } from "lucide-react";
+import { ListOrdered, Shield, UploadCloud } from "lucide-react";
 
 interface NavbarProps {
   currentPath?: string;
@@ -43,6 +43,12 @@ export function Navbar({ currentPath = "/upload", isStaff = false }: NavbarProps
             <UploadCloud className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span className="hidden sm:inline">{t("upload_nav")}</span>
             <span className="sr-only sm:hidden">{t("upload_nav")}</span>
+          </NavLink>
+
+          <NavLink href="/queue" active={currentPath === "/queue"}>
+            <ListOrdered className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span className="hidden sm:inline">{t("queue_nav")}</span>
+            <span className="sr-only sm:hidden">{t("queue_nav")}</span>
           </NavLink>
 
           {isStaff && (

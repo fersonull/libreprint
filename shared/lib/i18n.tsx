@@ -12,6 +12,13 @@ interface I18nContextType {
 
 const translations: Record<Language, Record<string, string>> = {
   en: {
+    queue_nav: "Queue",
+    queue_title: "Print queue",
+    queue_subtitle: "See where your ticket is. When your code shows under Ready for pickup, go to the counter.",
+    queue_in_line: "In line",
+    queue_none_ready: "Nothing ready yet.",
+    queue_none_waiting: "No one is waiting. New tickets show up here right away.",
+    queue_masked_note: "Codes show only their last two digits. Match them with the code on your ticket.",
     brand: "libreprint",
     brand_tagline: "Local Print Service",
     upload_nav: "Upload Docs",
@@ -143,6 +150,13 @@ const translations: Record<Language, Record<string, string>> = {
     refresh: "Refresh Queue",
   },
   fil: {
+    queue_nav: "Pila",
+    queue_title: "Pila ng pag-print",
+    queue_subtitle: "Tingnan kung nasaan na ang iyong tiket. Kapag nasa Handa nang kunin na ang code mo, pumunta sa counter.",
+    queue_in_line: "Nakapila",
+    queue_none_ready: "Wala pang handa.",
+    queue_none_waiting: "Walang nakapila. Lalabas agad dito ang mga bagong tiket.",
+    queue_masked_note: "Huling dalawang numero lang ng code ang ipinapakita. Itugma ito sa code sa iyong tiket.",
     brand: "libreprint",
     brand_tagline: "Lokal na Serbisyo sa Pag-print",
     upload_nav: "Mag-upload",

@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { StatusBadge, type PrintStatus } from "@/shared/components/status-badge";
 import { EmptyTray } from "@/shared/components/illustrations";
 import type { TicketSummary } from "../queries";
-import { LiveRefresh } from "../live-refresh";
+import { LiveRefresh } from "@/shared/components/live-refresh";
 import { Pager } from "../pager";
 import { TicketFilters } from "../ticket-filters";
 import { clockTime, plural, timeAgo } from "../format";

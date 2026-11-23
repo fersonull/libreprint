@@ -105,6 +105,31 @@ export function countTicketsByStatus(): Record<PrintStatus, number> {
   return counts;
 }
 
+/** Hides all but the last two digits, so the public board can't be used to open other people's tickets. */
+export function maskTicketCode(code: string) {
+  return code.replace(/\d(?=\d{2})/g, "•");
+}
+
+export type PublicQueueEntry = { code: string; status: PrintStatus };
+
+/** The customer-facing board: only masked codes and status, never names or file names. */
+export function listPublicQueue() {
+  const db = getDb();
+  const waiting = db
+    .prepare(`${SUMMARY_SQL} SELECT ticket_code, status FROM summary WHERE status IN ('queued', 'printing')
+      ORDER BY status = 'printing' DESC, created_at ASC`)
+    .all() as { ticket_code: string; status: PrintStatus }[];
+  const ready = db
+    .prepare(`${SUMMARY_SQL} SELECT ticket_code, status FROM summary WHERE status = 'done' AND finished_at >= ?
+      ORDER BY finished_at DESC LIMIT 30`)
+    .all(startOfToday()) as { ticket_code: string; status: PrintStatus }[];
+  const toEntry = (r: { ticket_code: string; status: PrintStatus }): PublicQueueEntry => ({
+    code: maskTicketCode(r.ticket_code),
+    status: r.status,
+  });
+  return { waiting: waiting.map(toEntry), ready: ready.map(toEntry) };
+}
+
 function startOfToday() {
   const d = new Date();
   d.setHours(0, 0, 0, 0);

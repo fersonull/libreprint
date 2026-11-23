@@ -16,7 +16,7 @@ import { ChartContainer, ChartTooltipContent } from "@/shared/components/ui/char
 import { StatusBadge } from "@/shared/components/status-badge";
 import { EmptyTray } from "@/shared/components/illustrations";
 import type { getOverview, TicketSummary } from "../queries";
-import { LiveRefresh } from "../live-refresh";
+import { LiveRefresh } from "@/shared/components/live-refresh";
 import { plural, timeAgo, when } from "../format";
 
 type OverviewData = ReturnType<typeof getOverview>;
