@@ -1,9 +1,11 @@
 "use client";
 
-import { StatusBadge } from "@/shared/components/status-badge";
+import { StatusBadge, type PrintStatus } from "@/shared/components/status-badge";
 import { LiveRefresh } from "@/shared/components/live-refresh";
 import { useI18n } from "@/shared/lib/i18n";
-import type { PublicQueueEntry } from "@/features/staff/queries";
+
+/** One masked ticket on the public board. */
+export type PublicQueueEntry = { code: string; status: PrintStatus };
 
 export function QueueBoard({ waiting, ready }: { waiting: PublicQueueEntry[]; ready: PublicQueueEntry[] }) {
   const { t } = useI18n();
