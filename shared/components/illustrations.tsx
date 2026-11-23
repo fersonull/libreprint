@@ -203,6 +203,34 @@ export function CounterBell({ className = "" }: IllProps) {
   );
 }
 
+/** A claim stub with its code, under a magnifier. Finding a ticket you already have. */
+export function FoundStub({ className = "" }: IllProps) {
+  return (
+    <svg viewBox="0 0 160 110" className={className} fill="none" aria-hidden="true">
+      <ellipse cx="80" cy="102" rx="56" ry="3.5" fill={SHADE} />
+      <g transform="rotate(-4 72 54)">
+        <path
+          d="M24 22 h96 v20 a10 10 0 0 0 0 20 v20 h-96 v-20 a10 10 0 0 0 0 -20 Z"
+          fill={PAPER}
+          stroke={INK}
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <line x1="34" y1="52" x2="110" y2="52" stroke={LINE} strokeWidth="2" strokeDasharray="4 4" />
+        {/* the code, highlighted like the marker on the real ticket */}
+        <rect x="38" y="31" width="68" height="13" rx="2" fill={ACCENT_SOFT} />
+        <line x1="44" y1="37.5" x2="98" y2="37.5" stroke={INK} strokeWidth="4" strokeLinecap="round" strokeDasharray="7 4" />
+        <line x1="40" y1="66" x2="78" y2="66" stroke={LINE} strokeWidth="2" strokeLinecap="round" />
+        <line x1="40" y1="73" x2="66" y2="73" stroke={LINE} strokeWidth="2" strokeLinecap="round" />
+      </g>
+      {/* magnifier over the code */}
+      <circle cx="112" cy="44" r="17" fill={PAPER} fillOpacity="0.55" stroke={INK} strokeWidth="2" />
+      <path d="M124 56 L138 70" stroke={INK} strokeWidth="5" strokeLinecap="round" />
+      <path d="M103 38 a10 10 0 0 1 9 -6" stroke={ACCENT} strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /** A claim stub with no code on it. Ticket not found. */
 export function MissingStub({ className = "" }: IllProps) {
   return (

@@ -10,7 +10,8 @@ export function UploadPage({ after }: { after?: ReactNode }) {
   const { t } = useI18n();
 
   return (
-    <div className="flex min-h-screen flex-col">
+    // pb-24 on phones keeps the page's end clear of the form's fixed submit bar
+    <div className="flex min-h-screen flex-col pb-24 lg:pb-0">
       <Navbar currentPath="/upload" isStaff={false} />
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-8 pb-12 sm:px-6 sm:pt-12 lg:max-w-6xl">

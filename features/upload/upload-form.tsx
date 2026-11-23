@@ -252,7 +252,7 @@ export function UploadForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid items-start gap-4 pb-28 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-6 lg:pb-0"
+      className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-6"
     >
       {/* Left: who is printing, and what */}
       <Card className="gap-0 py-0">
