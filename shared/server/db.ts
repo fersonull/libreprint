@@ -99,8 +99,12 @@ export function getDb(): DatabaseAdapter {
         prepare: (sql: string) => {
           const stmt = nDb.prepare(sql);
           return {
-            all: (...params: unknown[]) => stmt.all(...params) as unknown[],
-            get: (...params: unknown[]) => stmt.get(...params) as unknown | undefined,
+            // node:sqlite rows have a null prototype, which React refuses to pass to Client Components
+            all: (...params: unknown[]) => stmt.all(...params).map((r: object) => ({ ...r })),
+            get: (...params: unknown[]) => {
+              const row = stmt.get(...params);
+              return row ? { ...row } : undefined;
+            },
             run: (...params: unknown[]) => stmt.run(...params),
           };
         },
