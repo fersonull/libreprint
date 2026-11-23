@@ -136,5 +136,11 @@
   "password_label": "Password ng Tanggapan",
   "sign_in_btn": "Mag-sign In sa Tanggapan",
   "sign_out": "Mag-sign Out",
-  "refresh": "I-refresh ang Pila"
+  "refresh": "I-refresh ang Pila",
+  "pager_none": "Walang resulta",
+  "pager_range": "{from}–{to} sa {total}",
+  "pager_rows": "Bilang ng hilera bawat pahina",
+  "pager_per_page": "{n} bawat pahina",
+  "pager_previous": "Nakaraan",
+  "pager_next": "Susunod"
 }

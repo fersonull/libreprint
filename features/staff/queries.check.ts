@@ -21,7 +21,7 @@ console.assert(overview.daily.length === 7, "seven days of history");
 
 console.log("staff queries ok", { tickets: all.total, counts });
 
-const { pageWindow } = await import("./format");
+const { pageWindow } = await import("@/shared/lib/utils");
 console.assert(JSON.stringify(pageWindow(1, 1)) === "[1]", "single page");
 console.assert(JSON.stringify(pageWindow(5, 10)) === JSON.stringify([1, "…", 4, 5, 6, "…", 10]), "window with gaps");
 console.assert(JSON.stringify(pageWindow(2, 3)) === "[1,2,3]", "no gap between neighbours");
@@ -31,3 +31,9 @@ console.assert(maskTicketCode("PQ-481920") === "PQ-••••20", "codes keep 
 const board = listPublicQueue();
 console.assert([...board.waiting, ...board.ready].every((e) => !/\d{3}/.test(e.code) && Object.keys(e).join() === "code,status"), "public board leaks only masked codes and status");
 console.assert(board.ready.every((e) => e.status === "done"), "ready column holds only finished tickets");
+
+const allWaiting = listPublicQueue({ pageSize: 1000 });
+const page2 = listPublicQueue({ page: 2, pageSize: 2 });
+console.assert(page2.waiting.length <= 2 && page2.total === allWaiting.total, "board pages keep the full count");
+console.assert(allWaiting.total < 3 || page2.waiting[0].code === allWaiting.waiting[2].code, "board page 2 continues where page 1 stopped");
+console.assert(listPublicQueue({ page: 999, pageSize: 2 }).page === Math.max(1, Math.ceil(allWaiting.total / 2)), "board clamps to its last page");

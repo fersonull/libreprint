@@ -2,12 +2,16 @@
 
 import { StatusBadge, type PrintStatus } from "@/shared/components/status-badge";
 import { LiveRefresh } from "@/shared/components/live-refresh";
+import { Pager } from "@/shared/components/pager";
 import { useI18n } from "@/shared/lib/i18n";
 
 /** One masked ticket on the public board. */
 export type PublicQueueEntry = { code: string; status: PrintStatus };
 
-export function QueueBoard({ waiting, ready }: { waiting: PublicQueueEntry[]; ready: PublicQueueEntry[] }) {
+type Paging = { total: number; page: number; pageCount: number; pageSize: number };
+
+export function QueueBoard({ waiting, ready, paging }: { waiting: PublicQueueEntry[]; ready: PublicQueueEntry[]; paging: Paging }) {
+  const offset = (paging.page - 1) * paging.pageSize;
   const { t } = useI18n();
 
   return (
@@ -44,7 +48,7 @@ export function QueueBoard({ waiting, ready }: { waiting: PublicQueueEntry[]; re
 
       <section aria-labelledby="waiting-heading">
         <h2 id="waiting-heading" className="mb-3 text-sm font-semibold text-foreground">
-          {t("queue_in_line")} <span className="font-normal text-muted-foreground">· {waiting.length}</span>
+          {t("queue_in_line")} <span className="font-normal text-muted-foreground">· {paging.total}</span>
         </h2>
         {waiting.length === 0 ? (
           <p className="rounded-xl border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
@@ -54,12 +58,17 @@ export function QueueBoard({ waiting, ready }: { waiting: PublicQueueEntry[]; re
           <ol className="divide-y rounded-xl border bg-card">
             {waiting.map((e, i) => (
               <li key={i} className="flex items-center gap-4 px-4 py-3">
-                <span className="w-6 text-right text-sm tabular-nums text-muted-foreground">{i + 1}</span>
+                <span className="w-6 text-right text-sm tabular-nums text-muted-foreground">{offset + i + 1}</span>
                 <span className="flex-1 font-mono text-lg font-semibold tracking-wide text-foreground">{e.code}</span>
                 <StatusBadge status={e.status} label={t(`status_${e.status}`)} />
               </li>
             ))}
           </ol>
+        )}
+        {paging.pageCount > 1 && (
+          <div className="mt-3">
+            <Pager {...paging} />
+          </div>
         )}
       </section>
 

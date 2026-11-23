@@ -20,13 +20,6 @@ export function plural(n: number, one: string, many = `${one}s`) {
   return `${n} ${n === 1 ? one : many}`;
 }
 
-/** Page numbers to show: first, last, and a window around the current page. */
-export function pageWindow(page: number, pageCount: number): (number | "…")[] {
-  const pages = new Set([1, pageCount, page - 1, page, page + 1]);
-  const sorted = [...pages].filter((p) => p >= 1 && p <= pageCount).sort((a, b) => a - b);
-  return sorted.flatMap((p, i) => (i > 0 && p - sorted[i - 1] > 1 ? ["…" as const, p] : [p]));
-}
-
 /** Clock time for today, otherwise the date: "9:19 PM" or "Nov 21". */
 export function when(ms: number, now = new Date()) {
   const d = new Date(ms);

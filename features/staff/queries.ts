@@ -1,5 +1,6 @@
 import "server-only";
 import { getDb, type Ticket } from "@/shared/server/db";
+import { DEFAULT_PAGE_SIZE } from "@/shared/lib/utils";
 import type { PrintStatus } from "@/shared/components/status-badge";
 
 /** One ticket with its files rolled up, as every staff list shows it. */
@@ -47,14 +48,14 @@ const ORDER_BY: Record<TicketSort, string> = {
   files: "file_count DESC, created_at DESC",
 };
 
-export const PAGE_SIZE = 20;
+
 
 export function listTickets({
   filter = "all",
   q = "",
   sort = "newest",
   page = 1,
-  pageSize = PAGE_SIZE,
+  pageSize = DEFAULT_PAGE_SIZE,
 }: {
   filter?: TicketFilter;
   q?: string;
@@ -113,12 +114,16 @@ export function maskTicketCode(code: string) {
 export type PublicQueueEntry = { code: string; status: PrintStatus };
 
 /** The customer-facing board: only masked codes and status, never names or file names. */
-export function listPublicQueue() {
+export function listPublicQueue({ page = 1, pageSize = DEFAULT_PAGE_SIZE }: { page?: number; pageSize?: number } = {}) {
   const db = getDb();
+  const ACTIVE = "status IN ('queued', 'printing')";
+  const { total } = db.prepare(`${SUMMARY_SQL} SELECT COUNT(*) AS total FROM summary WHERE ${ACTIVE}`).get() as { total: number };
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const current = Math.min(Math.max(1, page), pageCount);
   const waiting = db
-    .prepare(`${SUMMARY_SQL} SELECT ticket_code, status FROM summary WHERE status IN ('queued', 'printing')
-      ORDER BY status = 'printing' DESC, created_at ASC`)
-    .all() as { ticket_code: string; status: PrintStatus }[];
+    .prepare(`${SUMMARY_SQL} SELECT ticket_code, status FROM summary WHERE ${ACTIVE}
+      ORDER BY status = 'printing' DESC, created_at ASC LIMIT ? OFFSET ?`)
+    .all(pageSize, (current - 1) * pageSize) as { ticket_code: string; status: PrintStatus }[];
   const ready = db
     .prepare(`${SUMMARY_SQL} SELECT ticket_code, status FROM summary WHERE status = 'done' AND finished_at >= ?
       ORDER BY finished_at DESC LIMIT 30`)
@@ -127,7 +132,7 @@ export function listPublicQueue() {
     code: maskTicketCode(r.ticket_code),
     status: r.status,
   });
-  return { waiting: waiting.map(toEntry), ready: ready.map(toEntry) };
+  return { waiting: waiting.map(toEntry), ready: ready.map(toEntry), total, page: current, pageCount, pageSize };
 }
 
 function startOfToday() {

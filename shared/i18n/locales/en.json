@@ -136,5 +136,11 @@
   "password_label": "Access Password",
   "sign_in_btn": "Sign In to Staff Desk",
   "sign_out": "Sign Out",
-  "refresh": "Refresh Queue"
+  "refresh": "Refresh Queue",
+  "pager_none": "No results",
+  "pager_range": "{from}–{to} of {total}",
+  "pager_rows": "Rows per page",
+  "pager_per_page": "{n} per page",
+  "pager_previous": "Previous",
+  "pager_next": "Next"
 }

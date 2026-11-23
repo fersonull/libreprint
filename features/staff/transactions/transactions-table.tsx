@@ -8,7 +8,7 @@ import { Card } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { StatusBadge, type PrintStatus } from "@/shared/components/status-badge";
 import type { TicketSummary } from "../queries";
-import { Pager } from "../pager";
+import { Pager } from "@/shared/components/pager";
 import { TicketFilters } from "../ticket-filters";
 import { dateTime } from "../format";
 
@@ -102,7 +102,7 @@ export function TransactionsTable({
         </Table>
       </Card>
 
-      <Pager page={list.page} pageCount={list.pageCount} total={list.total} pageSize={list.pageSize} />
+      <Pager page={list.page} pageCount={list.pageCount} total={list.total} pageSize={list.pageSize} sizes />
     </div>
   );
 }

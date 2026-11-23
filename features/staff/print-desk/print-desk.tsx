@@ -12,7 +12,7 @@ import { StatusBadge, type PrintStatus } from "@/shared/components/status-badge"
 import { EmptyTray } from "@/shared/components/illustrations";
 import type { TicketSummary } from "../queries";
 import { LiveRefresh } from "@/shared/components/live-refresh";
-import { Pager } from "../pager";
+import { Pager } from "@/shared/components/pager";
 import { TicketFilters } from "../ticket-filters";
 import { clockTime, plural, timeAgo } from "../format";
 
@@ -144,7 +144,7 @@ export function PrintDesk({ list, counts, filter, sort }: DeskProps) {
         )}
       </Card>
 
-      <Pager page={list.page} pageCount={list.pageCount} total={list.total} pageSize={list.pageSize} />
+      <Pager page={list.page} pageCount={list.pageCount} total={list.total} pageSize={list.pageSize} sizes />
     </div>
   );
 }
