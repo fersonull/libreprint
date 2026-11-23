@@ -8,12 +8,10 @@ export async function GET(
   const { id } = await params;
   const db = getDb();
 
-  // Resolve ticket by id or code
-  const ticket = db
-    .prepare("SELECT id FROM tickets WHERE id = ? OR UPPER(ticket_code) = UPPER(?)")
-    .get(id, id) as Ticket | undefined;
-
-  const targetTicketId = ticket ? ticket.id : id;
+  // By id only: resolving codes here would let anyone turn a guessed code into a ticket id without hitting the lookup limit.
+  const ticket = db.prepare("SELECT id FROM tickets WHERE id = ?").get(id) as Ticket | undefined;
+  if (!ticket) return new Response("Ticket not found.", { status: 404 });
+  const targetTicketId = ticket.id;
 
   const encoder = new TextEncoder();
 

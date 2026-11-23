@@ -3,10 +3,11 @@ import { spawn } from "child_process";
 console.log("=== STARTING LIBREPRINT END-TO-END VERIFICATION ===");
 
 const PORT = 3099;
+const STAFF_PASSWORD = "e2e-staff-pass";
 const serverProcess = spawn("node", ["./node_modules/next/dist/bin/next", "start", "-p", String(PORT)], {
   cwd: process.cwd(),
   stdio: "pipe",
-  env: { ...process.env, PORT: String(PORT) },
+  env: { ...process.env, PORT: String(PORT), STAFF_PASSWORD },
 });
 
 let serverReady = false;
@@ -49,8 +50,8 @@ async function runTests() {
     formData.append("files", blob, "thesis_chapter_1.pdf");
     formData.append(
       "fileOptions",
-      JSON.stringify({
-        "thesis_chapter_1.pdf": {
+      JSON.stringify([
+        {
           copies: 3,
           colorMode: "bw",
           paperSize: "Short (Letter)",
@@ -58,7 +59,7 @@ async function runTests() {
           doubleSided: true,
           notes: "Paki-staple po sa itaas kaliwa. Salamat!",
         },
-      })
+      ])
     );
 
     const uploadRes = await fetch(`http://127.0.0.1:${PORT}/api/upload`, {
@@ -104,7 +105,7 @@ async function runTests() {
     const loginRes = await fetch(`http://127.0.0.1:${PORT}/api/staff/auth`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: "admin" }),
+      body: JSON.stringify({ password: STAFF_PASSWORD }),
     });
 
     const loginData = await loginRes.json();
@@ -150,6 +151,36 @@ async function runTests() {
     if (doneData.file.status !== "done") throw new Error("Status transition to done failed");
 
     console.log(`✓ Status transitioned cleanly to 'done' at ${new Date(doneData.file.printed_at).toISOString()}!`);
+
+    // Test 6: Hardening for public access
+    console.log("\n[7] Testing public-access hardening...");
+    const forged = await fetch(`http://127.0.0.1:${PORT}/api/staff/tickets`, {
+      headers: { Cookie: "pq_staff_session=pq-default-secure-staff-token-2026" },
+    });
+    if (forged.status !== 401) throw new Error(`Old fixed session token still accepted (${forged.status})`);
+
+    const streamByCode = await fetch(`http://127.0.0.1:${PORT}/api/tickets/${uploadData.ticketCode}/stream`);
+    if (streamByCode.status !== 404) throw new Error("Live stream still resolves claim codes");
+
+    const lookup = (ip) =>
+      fetch(`http://127.0.0.1:${PORT}/api/tickets/PQ-000000`, { headers: { "X-Forwarded-For": ip } }).then((r) => r.status);
+    const lookups = [];
+    for (let i = 0; i < 21; i++) lookups.push(await lookup("203.0.113.7"));
+    if (lookups[19] !== 404 || lookups[20] !== 429) throw new Error(`Code lookups not limited: ${lookups.join(",")}`);
+    if ((await lookup("203.0.113.8")) !== 404) throw new Error("Lookup limit leaked across visitors");
+
+    const login = (password) =>
+      fetch(`http://127.0.0.1:${PORT}/api/staff/auth`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Forwarded-For": "203.0.113.9" },
+        body: JSON.stringify({ password }),
+      }).then((r) => r.status);
+    const attempts = [];
+    for (let i = 0; i < 11; i++) attempts.push(await login("wrong"));
+    if (attempts[9] !== 401 || attempts[10] !== 429) throw new Error(`Login attempts not limited: ${attempts.join(",")}`);
+    if ((await login(STAFF_PASSWORD)) !== 429) throw new Error("Correct password bypassed the attempt limit");
+    if (!/^PQ-\d{6}$/.test(uploadData.ticketCode)) throw new Error(`Ticket code is not six digits: ${uploadData.ticketCode}`);
+    console.log("✓ Forged sessions rejected, code lookups and sign-ins rate limited, codes are six digits!");
 
     console.log("\n=======================================================");
     console.log("✅ ALL LIBREPRINT VERIFICATION TESTS PASSED SUCCESSFULLY!");

@@ -72,7 +72,7 @@ export function PaperTicket({ ticketCode, clientName, createdAt, totalFiles }: P
           <div className="px-6 pt-6 pb-7 text-center sm:px-8 sm:pt-7">
             <p className="text-[13px] font-medium text-muted-foreground">{t("claim_code")}</p>
             <div className="mt-2 flex items-center justify-center gap-2">
-              <h1 className="font-mono text-[2.6rem] leading-none font-bold tracking-[-0.03em] text-foreground sm:text-[3.25rem]">
+              <h1 className="font-mono text-[2.25rem] min-[400px]:text-[2.6rem] leading-none font-bold tracking-[-0.03em] text-foreground sm:text-[3.25rem]">
                 <span className="marker">{ticketCode}</span>
               </h1>
               <button

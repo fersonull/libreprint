@@ -1,6 +1,7 @@
 import { Navbar } from "@/shared/components/navbar";
 import { SubmitAnotherLink, TicketNotFound, TicketTracker } from "@/features/ticket";
-import { getTicketWithFiles } from "@/shared/server/tickets";
+import { headers } from "next/headers";
+import { getTicketWithFiles, isCodeLookupLimited } from "@/shared/server/tickets";
 
 export default async function TicketPage({
   params,
@@ -8,14 +9,15 @@ export default async function TicketPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const found = getTicketWithFiles(id);
+  const limited = isCodeLookupLimited(decodeURIComponent(id), await headers());
+  const found = limited ? null : getTicketWithFiles(id);
 
   if (!found) {
     return (
       <div className="flex min-h-screen flex-col text-foreground">
         <Navbar currentPath="/ticket" />
         <main className="w-full flex-1 px-4">
-          <TicketNotFound code={decodeURIComponent(id)} />
+          <TicketNotFound code={decodeURIComponent(id)} limited={limited} />
         </main>
       </div>
     );

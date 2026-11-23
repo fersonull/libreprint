@@ -1,7 +1,9 @@
+import { randomInt } from "crypto";
 import { getDb } from "@/shared/server/db";
 
 /**
- * Generates a clean human-readable ticket code e.g. PQ-4819
+ * Generates a human-readable ticket code e.g. PQ-481920. Six digits so the
+ * public board (which shows the last two) still leaves 10,000 guesses per ticket.
  */
 export function generateTicketCode(): string {
   const db = getDb();
@@ -11,8 +13,7 @@ export function generateTicketCode(): string {
 
   while (exists && attempts < 20) {
     attempts++;
-    // Generate 4 random digits (1000 - 9999)
-    const num = Math.floor(1000 + Math.random() * 9000);
+    const num = randomInt(100_000, 1_000_000);
     code = `PQ-${num}`;
 
     const existing = db

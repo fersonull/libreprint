@@ -2,7 +2,7 @@
   <img src="docs/banner.svg" alt="libreprint: a local print queue for walk-in print shops" width="100%">
 </p>
 
-**libreprint** replaces "send it to our Facebook page and wait" with a print queue that runs on the shop's own computer. Customers upload documents from their phones over the shop's Wi-Fi, get a paper-style claim ticket with a code like `PQ-4819`, and watch it live until it's ready. Staff see one queue, preview and print each file, and mark it done.
+**libreprint** replaces "send it to our Facebook page and wait" with a print queue that runs on the shop's own computer. Customers upload documents from their phones over the shop's Wi-Fi, get a paper-style claim ticket with a code like `PQ-481920`, and watch it live until it's ready. Staff see one queue, preview and print each file, and mark it done.
 
 No customer accounts, no cloud: files and the database stay on the shop's machine.
 
@@ -36,7 +36,7 @@ The dev server listens on all network interfaces, so phones on the same Wi-Fi ca
 | Page | URL |
 |---|---|
 | Customer upload | `/upload` |
-| Customer ticket | `/ticket/PQ-4819` |
+| Customer ticket | `/ticket/PQ-481920` |
 | Staff sign-in | `/staff/login` |
 | Staff dashboard | `/staff/dashboard` |
 
@@ -53,10 +53,10 @@ Set these in `.env.local` before using it in a shop.
 
 | Variable | What it does | Default |
 |---|---|---|
-| `STAFF_PASSWORD` | Password for the staff sign-in. | `admin` |
-| `STAFF_SESSION_SECRET` | Value stored in the staff session cookie. Use a long random string. | a built-in placeholder |
+| `STAFF_PASSWORD` | Password for the staff sign-in. **Required in production**: staff sign-in stays off until it is set. | `admin` in development only |
+| `STAFF_SESSION_SECRET` | Signs staff session cookies. Optional. | a random secret generated once into `data/.session-secret` |
 
-> **Change both defaults.** With the defaults, anyone on the network can sign in as staff.
+Staff sign-in allows 10 attempts per 15 minutes per visitor, and looking up tickets by code allows 20 per 10 minutes. Both limits live in memory and reset when the server restarts.
 
 Uploads and the database live in `data/` (`data/uploads/` and `data/printqueue.db`), which git ignores. Back up that folder to keep the shop's history.
 

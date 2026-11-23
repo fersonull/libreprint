@@ -27,7 +27,7 @@ console.assert(JSON.stringify(pageWindow(5, 10)) === JSON.stringify([1, "…", 4
 console.assert(JSON.stringify(pageWindow(2, 3)) === "[1,2,3]", "no gap between neighbours");
 
 const { listPublicQueue, maskTicketCode } = await import("./queries");
-console.assert(maskTicketCode("PQ-4819") === "PQ-••19", "codes keep only the last two digits");
+console.assert(maskTicketCode("PQ-481920") === "PQ-••••20", "codes keep only the last two digits");
 const board = listPublicQueue();
 console.assert([...board.waiting, ...board.ready].every((e) => !/\d{3}/.test(e.code) && Object.keys(e).join() === "code,status"), "public board leaks only masked codes and status");
 console.assert(board.ready.every((e) => e.status === "done"), "ready column holds only finished tickets");

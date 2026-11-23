@@ -11,7 +11,7 @@ web
 - **Counter staff** at the same shop, on a desktop or laptop behind the counter. Job: see what's waiting, open and print files, mark jobs done, hand prints to the right person.
 
 ## Product Purpose
-Replace "send it to our Facebook/email and wait" with a local queue: upload files with print settings, receive a paper-style claim ticket with a code (e.g. PQ-4819), and watch its status live until pickup. Success is a customer who never has to ask "is mine done yet?" and staff who never print the wrong file.
+Replace "send it to our Facebook/email and wait" with a local queue: upload files with print settings, receive a paper-style claim ticket with a code (e.g. PQ-481920), and watch its status live until pickup. Success is a customer who never has to ask "is mine done yet?" and staff who never print the wrong file.
 
 ## Positioning
 Runs on the shop's own machine and network; no accounts for customers, no cloud. The claim ticket mirrors the physical stub shops already hand out.
