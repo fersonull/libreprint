@@ -142,5 +142,18 @@
   "pager_rows": "Bilang ng hilera bawat pahina",
   "pager_per_page": "{n} bawat pahina",
   "pager_previous": "Nakaraan",
-  "pager_next": "Susunod"
+  "pager_next": "Susunod",
+  "notify_button": "Abisuhan ako",
+  "notify_explainer": "Makatanggap ng abiso sa phone na ito kapag sinimulan nang i-print at kapag handa na, kahit nakasara ang page na ito.",
+  "notify_on": "Aabisuhan ka namin kapag ini-imprenta na at kapag handa na.",
+  "notify_off": "I-off",
+  "notify_failed": "Hindi ma-on ang mga abiso. Tingnan ang iyong koneksyon at subukan ulit.",
+  "notify_https_hint": "Para sa mga abiso, buksan ang tiket na ito gamit ang https:// na link ng shop. Habang hinihintay, panatilihing bukas ang page na ito at tutunog ito kapag handa na ang iyong mga print.",
+  "notify_ios_hint": "Para sa mga abiso sa iPhone, pindutin ang Share, saka Add to Home Screen, at doon buksan ang libreprint. Habang hinihintay, panatilihing bukas ang page na ito para sa live na update.",
+  "notify_unsupported": "Hindi kayang magpakita ng abiso ng browser na ito. Panatilihing bukas ang page na ito at tutunog ito kapag handa na ang iyong mga print.",
+  "notify_denied": "Naka-block ang mga abiso para sa site na ito. Payagan ito sa settings ng iyong browser, o panatilihing bukas ang page na ito.",
+  "notify_printing_title": "Sinimulan na ang iyong mga print",
+  "notify_printing_body": "Ini-imprenta na ang tiket {code}.",
+  "notify_ready_title": "Handa nang kunin",
+  "notify_ready_body": "Handa na ang tiket {code}. Ipakita ang iyong code sa counter."
 }

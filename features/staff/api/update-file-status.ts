@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getDb, PrintFile } from "@/shared/server/db";
 import { isStaffAuthenticated } from "@/shared/server/staff-session";
 import { emitStatusUpdate } from "@/shared/server/live-updates";
+import { notifyTicketProgress, ticketFiles } from "@/shared/server/push";
+import { ticketProgress } from "@/shared/lib/ticket-progress";
 
 const VALID_STATUSES = new Set(["queued", "printing", "done", "cancelled"]);
 
@@ -41,6 +43,7 @@ export async function PATCH(
       );
     }
 
+    const before = ticketProgress(ticketFiles(existingFile.ticket_id));
     const now = Date.now();
     const printedAt = status === "done" ? now : existingFile.printed_at;
 
@@ -59,6 +62,8 @@ export async function PATCH(
       status: status as "queued" | "printing" | "done" | "cancelled",
       printedAt,
     });
+    // Not awaited: the staff screen shouldn't wait on phones' push services.
+    void notifyTicketProgress(existingFile.ticket_id, before);
 
     return NextResponse.json({
       success: true,

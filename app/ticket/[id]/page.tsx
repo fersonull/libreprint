@@ -2,6 +2,7 @@ import { Navbar } from "@/shared/components/navbar";
 import { SubmitAnotherLink, TicketNotFound, TicketTracker } from "@/features/ticket";
 import { headers } from "next/headers";
 import { getTicketWithFiles, isCodeLookupLimited } from "@/shared/server/tickets";
+import { getVapidPublicKey } from "@/shared/server/push";
 
 export default async function TicketPage({
   params,
@@ -33,7 +34,7 @@ export default async function TicketPage({
         <div className="mb-4">
           <SubmitAnotherLink />
         </div>
-        <TicketTracker initialTicket={ticket} initialFiles={files} />
+        <TicketTracker initialTicket={ticket} initialFiles={files} vapidPublicKey={getVapidPublicKey()} />
       </main>
     </div>
   );

@@ -15,7 +15,7 @@ export function getTicketWithFiles(idOrCode: string) {
   return { ticket, files };
 }
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * Claim codes are short enough to guess, so lookups by code are capped per visitor.

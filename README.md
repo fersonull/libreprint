@@ -58,6 +58,17 @@ Set these in `.env.local` before using it in a shop.
 
 Staff sign-in allows 10 attempts per 15 minutes per visitor, and looking up tickets by code allows 20 per 10 minutes. Both limits live in memory and reset when the server restarts.
 
+### Notifications
+
+On their ticket page customers can tap **Notify me** to get a phone notification when their prints start and when they're ready for pickup, even with the page closed. This uses standard Web Push, which is free but needs:
+
+- the site opened over **https** (the tunnel address, or `localhost`) and internet access, since notifications travel through Google's, Apple's or Microsoft's push service;
+- on iPhone, the site added to the Home Screen first (iOS 16.4+); the page explains this.
+
+On plain `http://` LAN addresses the button is replaced by a hint, and an open ticket page still beeps, vibrates and marks the tab title when the ticket changes.
+
+Keys are generated once into `data/.vapid.json`. To manage them yourself, set `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` (generate with `bunx web-push generate-vapid-keys`). Set `VAPID_SUBJECT` to a contact for the shop, e.g. `mailto:owner@yourshop.ph`; Apple's push service rejects some placeholder contacts.
+
 ### Languages
 
 All text lives in `shared/i18n/locales/` as one JSON file per language, with English (`en.json`) as the source. Other languages are generated from it by a translation model that runs on this computer:
@@ -103,7 +114,8 @@ Rules:
 ```bash
 bun run typecheck
 bun run lint
-bun run features/ticket/progress.check.ts
+bun run shared/lib/ticket-progress.check.ts
+bun run features/ticket/recent-tickets.check.ts
 bun run shared/i18n/messages.check.ts
 bun --conditions=react-server run features/staff/queries.check.ts
 ```

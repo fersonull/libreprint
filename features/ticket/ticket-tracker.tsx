@@ -9,15 +9,18 @@ import { RefreshCw, Printer, StickyNote } from "lucide-react";
 import { StatusPlates, type PlateStage } from "@/shared/components/illustrations";
 import { FileGlyph, FileName } from "@/shared/components/file-glyph";
 import { formatFileSize } from "@/shared/lib/utils";
-import { ticketProgress } from "./progress";
+import { progressEvents, ticketProgress, type TicketProgress } from "@/shared/lib/ticket-progress";
 import { rememberTicket } from "./recent-tickets";
+import { NotifyMe } from "./notify-me";
+import { playProgressAlert, primeAlertSound } from "./progress-alert";
 
 interface TicketTrackerProps {
   initialTicket: Ticket;
   initialFiles: PrintFile[];
+  vapidPublicKey: string;
 }
 
-export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProps) {
+export function TicketTracker({ initialTicket, initialFiles, vapidPublicKey }: TicketTrackerProps) {
   const { t } = useI18n();
   const [ticket] = useState<Ticket>(initialTicket);
   const [files, setFiles] = useState<PrintFile[]>(initialFiles);
@@ -105,7 +108,36 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
     };
   }, [ticket.id, refreshData]);
 
-  const { total: totalFiles, done: doneFiles, printing: printingFiles, allDone, allCancelled } = ticketProgress(files);
+  const progress = ticketProgress(files);
+  const { total: totalFiles, done: doneFiles, printing: printingFiles, allDone, allCancelled } = progress;
+
+  // In-page alert while the ticket is open: sound, vibration and the tab title.
+  const lastProgress = useRef<TicketProgress>(progress);
+  useEffect(() => {
+    const events = progressEvents(lastProgress.current, progress);
+    lastProgress.current = progress;
+    const event = events.includes("ready") ? "ready" : events[0];
+    if (!event) return;
+    playProgressAlert(event);
+    const original = document.title.replace(/^.+? · /, "");
+    document.title = `${t(event === "ready" ? "stage_done" : "stage_printing")} · ${original}`;
+    const restore = () => {
+      if (document.visibilityState === "visible" && document.hasFocus()) document.title = original;
+    };
+    // Leave the marker up until the customer actually looks at the tab.
+    const timer = setTimeout(restore, 8000);
+    window.addEventListener("focus", restore);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("focus", restore);
+    };
+  }, [progress.done, progress.printing, progress.total]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sound needs a tap first; any tap on the page counts.
+  useEffect(() => {
+    window.addEventListener("pointerdown", primeAlertSound, { once: true });
+    return () => window.removeEventListener("pointerdown", primeAlertSound);
+  }, []);
 
   const stage: PlateStage = allDone ? "done" : printingFiles > 0 || doneFiles > 0 ? "printing" : "queued";
   // Follows the same stage as the drawing so the two never disagree.
@@ -159,6 +191,12 @@ export function TicketTracker({ initialTicket, initialFiles }: TicketTrackerProp
             stage={stage}
             labels={{ queued: t("stage_queued"), printing: t("stage_printing"), done: t("stage_done") }}
           />
+        )}
+
+        {!allDone && !allCancelled && (
+          <div className="mt-5 border-t border-dashed pt-4">
+            <NotifyMe ticketId={ticket.id} vapidPublicKey={vapidPublicKey} />
+          </div>
         )}
       </section>
 

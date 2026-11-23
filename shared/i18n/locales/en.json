@@ -142,5 +142,18 @@
   "pager_rows": "Rows per page",
   "pager_per_page": "{n} per page",
   "pager_previous": "Previous",
-  "pager_next": "Next"
+  "pager_next": "Next",
+  "notify_button": "Notify me",
+  "notify_explainer": "Get a notification on this phone when it starts printing and when it's ready, even with this page closed.",
+  "notify_on": "We'll notify you when it's printing and when it's ready.",
+  "notify_off": "Turn off",
+  "notify_failed": "Couldn't turn on notifications. Check your connection and try again.",
+  "notify_https_hint": "For notifications, open this ticket through the shop's https:// link. Keep this page open meanwhile and it will beep when your prints are ready.",
+  "notify_ios_hint": "For notifications on iPhone, tap Share, then Add to Home Screen, and open libreprint from there. Keep this page open meanwhile and it will update live.",
+  "notify_unsupported": "This browser can't show notifications. Keep this page open and it will beep when your prints are ready.",
+  "notify_denied": "Notifications are blocked for this site. Allow them in your browser settings, or keep this page open.",
+  "notify_printing_title": "Your prints have started",
+  "notify_printing_body": "Ticket {code} is printing now.",
+  "notify_ready_title": "Ready for pickup",
+  "notify_ready_body": "Ticket {code} is ready. Show your code at the counter."
 }

@@ -151,6 +151,18 @@ function initSchema(db: DatabaseAdapter) {
     CREATE INDEX IF NOT EXISTS idx_print_files_ticket_id ON print_files(ticket_id);
     CREATE INDEX IF NOT EXISTS idx_print_files_status ON print_files(status);
     CREATE INDEX IF NOT EXISTS idx_tickets_created_at ON tickets(created_at DESC);
+
+    -- Browsers asking to be told when a ticket starts printing or is ready.
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      endpoint TEXT NOT NULL,
+      ticket_id TEXT NOT NULL,
+      p256dh TEXT NOT NULL,
+      auth TEXT NOT NULL,
+      lang TEXT NOT NULL DEFAULT 'en',
+      created_at INTEGER NOT NULL,
+      PRIMARY KEY (endpoint, ticket_id),
+      FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE
+    );
   `);
 
   // Safe incremental migration in case table was created with earlier schema
@@ -160,6 +172,9 @@ function initSchema(db: DatabaseAdapter) {
     "ALTER TABLE print_files ADD COLUMN double_sided INTEGER DEFAULT 0;",
     "ALTER TABLE print_files ADD COLUMN notes TEXT;",
     "ALTER TABLE print_files ADD COLUMN pages TEXT DEFAULT 'All';",
+    // Each notification goes out once per ticket, even if staff flip statuses back and forth.
+    "ALTER TABLE tickets ADD COLUMN notified_printing_at INTEGER;",
+    "ALTER TABLE tickets ADD COLUMN notified_ready_at INTEGER;",
   ];
 
   for (const sql of migrations) {

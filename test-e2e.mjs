@@ -124,6 +124,36 @@ async function runTests() {
     console.log("Queue statistics:", staffQueueData.stats);
     console.log("✓ Staff ticket list verified!");
 
+    // Test 4b: Push subscription (fake endpoint: sending must fail quietly, never break staff actions)
+    console.log("\n[5b] Testing push subscription API...");
+    const { createECDH, randomBytes } = await import("crypto");
+    const ecdh = createECDH("prime256v1");
+    ecdh.generateKeys();
+    const fakeSub = {
+      endpoint: "https://push.example.invalid/e2e-subscription",
+      keys: { p256dh: ecdh.getPublicKey("base64url"), auth: randomBytes(16).toString("base64url") },
+    };
+    const pushUrl = `http://127.0.0.1:${PORT}/api/tickets/${uploadData.ticketId}/push`;
+    const subRes = await fetch(pushUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription: fakeSub, lang: "fil" }),
+    });
+    if (subRes.status !== 200) throw new Error(`Subscribe failed (${subRes.status})`);
+    const badSub = await fetch(pushUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription: { ...fakeSub, endpoint: "http://insecure.example/x" } }),
+    });
+    if (badSub.status !== 400) throw new Error("Non-https push endpoint was accepted");
+    const byCode = await fetch(`http://127.0.0.1:${PORT}/api/tickets/${uploadData.ticketCode}/push`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription: fakeSub }),
+    });
+    if (byCode.status !== 404) throw new Error("Push subscription accepted a claim code instead of a ticket id");
+    console.log("✓ Push subscriptions validated!");
+
     // Test 5: Status Transition to printing & done
     console.log("\n[6] Testing Status Lifecycle (queued -> printing -> done)...");
     const fileId = firstFile.id;
@@ -149,6 +179,28 @@ async function runTests() {
     });
     const doneData = await doneRes.json();
     if (doneData.file.status !== "done") throw new Error("Status transition to done failed");
+
+    // Notifications are claimed once per ticket; flipping back and forth must not re-send.
+    const { DatabaseSync } = await import("node:sqlite");
+    const flags = () =>
+      new DatabaseSync("data/printqueue.db", { readOnly: true })
+        .prepare("SELECT notified_printing_at AS p, notified_ready_at AS r FROM tickets WHERE id = ?")
+        .get(uploadData.ticketId);
+    await new Promise((r) => setTimeout(r, 300)); // notifications are sent after the response
+    const first = flags();
+    if (!first.p || !first.r) throw new Error(`Printing/ready notifications not recorded: ${JSON.stringify(first)}`);
+    for (const status of ["printing", "done"]) {
+      const res = await fetch(`http://127.0.0.1:${PORT}/api/staff/files/${fileId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Cookie: cookieHeader },
+        body: JSON.stringify({ status }),
+      });
+      if (res.status !== 200) throw new Error(`Status flip to ${status} failed (${res.status})`);
+    }
+    await new Promise((r) => setTimeout(r, 300));
+    const again = flags();
+    if (again.p !== first.p || again.r !== first.r) throw new Error("Notification was sent twice for the same ticket");
+    console.log("✓ Printing and ready notifications sent once, push failures don't block staff!");
 
     console.log(`✓ Status transitioned cleanly to 'done' at ${new Date(doneData.file.printed_at).toISOString()}!`);
 
