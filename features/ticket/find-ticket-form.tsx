@@ -23,8 +23,8 @@ export function FindTicketForm() {
 
   return (
     <section className="mt-10 rounded-xl border border-dashed px-5 py-5 sm:px-6 sm:py-6" aria-labelledby="find-ticket">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+        <div className="flex min-w-0 items-center gap-4 lg:flex-1">
           <FoundStub className="h-16 w-auto shrink-0 sm:h-20" />
           <div className="flex flex-col gap-1">
             <h2 id="find-ticket" className="text-[15px] font-semibold text-foreground">
@@ -34,7 +34,7 @@ export function FindTicketForm() {
           </div>
         </div>
         <form
-          className="flex w-full flex-col gap-2 sm:flex-row sm:items-start md:w-auto"
+          className="flex w-full flex-col gap-2 sm:flex-row sm:items-start lg:w-auto lg:shrink-0"
           noValidate
           onSubmit={(event) => {
             event.preventDefault();
@@ -42,8 +42,8 @@ export function FindTicketForm() {
             startTransition(() => router.push(`/ticket/PQ-${digits}`));
           }}
         >
-          <div className="flex flex-col gap-1.5 sm:flex-1 md:flex-none">
-            <div className="flex h-11 items-center rounded-md border border-input shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-[[aria-invalid=true]]:border-destructive has-[[aria-invalid=true]]:ring-3 has-[[aria-invalid=true]]:ring-destructive/20 sm:h-9 md:w-60 dark:bg-input/30">
+          <div className="flex flex-col gap-1.5 sm:flex-1 lg:flex-none">
+            <div className="flex h-11 items-center rounded-md border border-input shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-[[aria-invalid=true]]:border-destructive has-[[aria-invalid=true]]:ring-3 has-[[aria-invalid=true]]:ring-destructive/20 sm:h-9 lg:w-60 dark:bg-input/30">
               <span className="pl-3 font-mono text-base tracking-wide text-muted-foreground select-none md:text-sm" aria-hidden="true">
                 PQ-
               </span>
